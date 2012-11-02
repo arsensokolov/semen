@@ -1,7 +1,6 @@
- <?php
+<?php
 session_start();
- $path=$_SERVER['DOCUMENT_ROOT'].'/';
-include_once $path.'db.php';
+include_once 'db.php';
 include 'sprav/class.php';
 include 'sprav/company.php';
 include 'sprav/domain.php';
