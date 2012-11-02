@@ -1,6 +1,9 @@
 <?php
-$my = new mysqli("127.0.0.1", "jkhuser", "jkhpassword", "jkh");
-$k=$my->query("SET NAMES utf8");
+$my = @new mysqli("localhost", "jkhuser", "jkhpassword", "jkh");
+if ($my->connect_error) {
+	$my = new mysqli("127.0.0.1", "jkhuser", "jkhpassword", "jkh");
+}
+$my->query("SET NAMES utf8");
 date_default_timezone_set('Asia/Irkutsk');
 setlocale(LC_ALL, 'ru_RU');
 $old_error_handler = set_error_handler("myErrorHandler");
