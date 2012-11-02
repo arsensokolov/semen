@@ -1,5 +1,5 @@
  <?php
-$path='/var/www/html/';
+$path=$_SERVER['DOCUMENT_ROOT'];
 include_once $path.'db.php';
 include 'sprav/class.php';
 include 'sprav/company.php';
