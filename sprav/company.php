@@ -1,8 +1,8 @@
 <?php
+
 if ($_GET['db']=='company') {
-	include_once 'db.php';
-	$company='';
-	$my->query("SET NAMES utf8");
+	$company = '';
+	include_once __DIR__.'/../db.php';
 	
 	switch ($_GET['action']) {
 		case 'cancel':
@@ -60,7 +60,7 @@ if ($_GET['db']=='company') {
 			break;
 		
 		default:
-			$company.= showtable_company($my);
+			$company = showtable_company($my);
 			break;
 	}
 }
