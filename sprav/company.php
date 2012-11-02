@@ -1,7 +1,6 @@
 <?php
 if ($_GET['db']=='company') {
-	$path='/var/www/html/';
-	include_once $path.'db.php';
+	include_once 'db.php';
 	$company='';
 	$my->query("SET NAMES utf8");
 	

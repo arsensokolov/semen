@@ -1,7 +1,6 @@
 <?php
 if ($_GET['db']=='gs') {
-$path='/var/www/html/';
-include_once $path.'db.php';
+include_once 'db.php';
 $gs='';
 $k=$my->query("SET NAMES utf8");
 

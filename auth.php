@@ -1,49 +1,4 @@
-<!DOCTYPE html>
-<html lang="ru">
-	<head>
-		<meta charset="utf-8">
-		<title>Авторизация</title>
-		<link href="css/bootstrap.min.css" rel="stylesheet">
-		<link href="css/bootstrap-responsive.min.css" rel="stylesheet">
-		<!-- HTML5 схема, для поддержки в IE6-8 элементов HTML -->
-		<!--[if lt IE 9]>
-			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-		<![endif]-->
-	</head>
-	
-	<body>
-	
-	<div class="container">
-		<section id="typeahead">
-			<div class="page-header">
-				<h1>Авторизация <small>АС «Квартиросъемщик»</small></h1>
-			</div>
-			
-			<?php 
-				function draw_form($bad_login = false) { 
-					if ($bad_login) echo '<div class="alert alert-error"><button type="button" class="close" data-dismiss="alert">×</button> Неверный логин и/или пароль</div>';
-			?>
-		    <form autocomplete="off" action="" method="post" class="form-horizontal">
-		    	<div class="control-group">
-		    		<label class="control-label" for="inputLogin">Логин</label>
-		    		<div class="controls">
-		    			<input type="text" name="login" id="inputLogin" placeholder="Введите логин">
-		    		</div>
-		    	</div>
-		    	<div class="control-group">
-		    		<label class="control-label" for="inputPassword">Пароль</label>
-		    		<div class="controls">
-		    			<input type="password" name="pass" id="inputPassword" placeholder="Введите пароль">
-		    		</div>
-		    	</div>
-		    	<div class="control-group">
-		    		<div class="controls">
-			    		<button type="submit" class="btn" name="submit">Войти</button>
-		    		</div>
-		    	</div>
-		    </form>
 <?php
-}
 
 /* Проверку логина и пароля, я вынес в отдельную функцию
  * это будет очень полезно, если в будущем мы решим хранить
@@ -77,8 +32,8 @@ if (!isset($_SESSION['login'])) {
     else {
         if (check_login($login, $pass)) {
             $_SESSION['login'] = $login;
-	    header("Location: index.php");
-}
+		    header("Location: index.php");
+		}
         else
             draw_form(true);
             // параметр true передается чтобы показать, что был введен
@@ -95,10 +50,76 @@ header("Location: index.php");
 // достаточно проверить, содержится ли в переменной $_SESSION['login']
 // его ник. А точнее объявлена она или нет. Это можно сделать при помощи isset()*/
 
+
+function draw_form($bad_login = false) {
 ?>
-			</section>
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="utf-8">
+		<title>Авторизация</title>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<style type="text/css">
+			body {
+				padding-top: 40px;
+				padding-bottom: 40px;
+				background-color: #f5f5f5;
+			}
+			
+			.form-sigin {
+				max-width: 300px;
+				padding: 19px 29px 29px;
+				margin: 0 auto 20px;
+				background-color: #fff;
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 5px;
+				   -moz-border-radius: 5px;
+				        border-radius: 5px;
+				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				   -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				        box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+			
+			.form-sigin .form-sigin-heading,
+			.form-sigin .checkbox {
+				margin-bottom: 10px;
+			}
+			
+			.form-sigin input[type="text"],
+			.form-sigin input[type="password"] {
+				font-size: 16px;
+				height: auto;
+				margin-bottom: 15px;
+				padding: 7px 9px;
+			}
+		</style>
+		<link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+		<!-- HTML5 схема, для поддержки в IE6-8 элементов HTML -->
+		<!--[if lt IE 9]>
+			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<div class="container">
+			<form class="form-sigin" autocomplete="off" method="post" >
+				<h2 class="form-sigin-heading">Авторизация</h2>
+				<?php
+						if ($bad_login) echo '<div class="alert alert-error"><button type="button" class="close" data-dismiss="alert">×</button> Неверный логин и/или пароль</div>';
+				?>
+				<input type="text" name="login" class="input-block-level" placeholder="Введите логин">
+				<input type="password" name="pass" class="input-block-level" placeholder="Введите пароль">
+				<!--
+<label class="checkbox">
+					<input type="checkbox" name="remember" value="remember-me"> Запомнить меня
+				</label>
+-->
+				<button type="submit" class="btn btn-large btn-primary" name="submit">Войти</button>
+			</form>
 		</div>
 		<script src="js/jquery.min.js"></script>
 		<script src="js/bootstrap-alert.js"></script>
 	</body>
 </html>
+<?php
+}
+?>
