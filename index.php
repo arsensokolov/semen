@@ -1,6 +1,6 @@
- <?php
-$path=$_SERVER['DOCUMENT_ROOT'];
-include_once $path.'db.php';
+<?php
+session_start();
+include_once 'db.php';
 include 'sprav/class.php';
 include 'sprav/company.php';
 include 'sprav/domain.php';
@@ -14,7 +14,7 @@ include 'sprav/tc.php';
 include 'oper/ai.php';
 include 'oper/cc.php';
 include 'print.php';
-session_start();
+
 if (isset($_GET['logout'])) {
     session_unset();
     session_destroy();

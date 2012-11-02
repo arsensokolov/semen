@@ -1,5 +1,5 @@
 <?php
-$my = new mysqli("localhost", "jkhuser", "jkhpassword", "jkh");
+$my = new mysqli("127.0.0.1", "jkhuser", "jkhpassword", "jkh");
 $k=$my->query("SET NAMES utf8");
 date_default_timezone_set('Asia/Irkutsk');
 setlocale(LC_ALL, 'ru_RU');
