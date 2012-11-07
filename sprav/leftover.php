@@ -1,7 +1,6 @@
 <?php
 if ($_GET['db']=='leftover') {
-$path='/var/www/html/';
-include_once $path.'db.php';
+include_once __DIR__.'/../db.php';
 $leftover='';
 
 if (!isset($_GET['action']))  {

@@ -1,7 +1,6 @@
 <?php
 if ($_GET['db']=='service') {
-$path='/var/www/html/';
-include_once $path.'db.php';
+include_once __DIR__.'/../db.php';
 $service='';
 #Сохранение отредактированной записи
 if (isset($_GET['action']) && ($_GET['action']=='edit.save')) {

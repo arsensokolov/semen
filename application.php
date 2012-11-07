@@ -271,7 +271,7 @@ if (isset($_POST['tc_new_id_house']) && isset($_POST['tc_new_number_flat']) && i
 	$serv=$ser->fetch_assoc();
 	$price=($serv['price_for_1_people_k1'])+($serv['price_for_1_sqr_metre_k1']);
 	$s=$my->query('SELECT id_tenant,number_flat, surname, 
-round(square/(SELECT round(sum(square),2) as sqare FROM the_tenant where id_house=19),5) as sum  
+round(square/(SELECT round(sum(square),2) as sqare FROM the_tenant where id_house='.$house.'),5) as sum  
 FROM the_tenant t  where t.id_house='.$house);
 	while (@$sq=$s->fetch_assoc()) {
 		$t.= "<tr>";

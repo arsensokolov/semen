@@ -1,8 +1,7 @@
 <?php
 
 if ($_GET['db']=='domain') {
-$path='/var/www/html/';
-include_once $path.'db.php';
+include_once __DIR__.'/../db.php';
 $k=$my->query("SET NAMES utf8");
 $domain='';
 
