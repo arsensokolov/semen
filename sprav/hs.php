@@ -1,6 +1,6 @@
 <?php
 if ($_GET['db']=='hs') {
-include_once 'db.php';
+include_once __DIR__.'/../db.php';
 $hs='';
 #Поиск
 if (!isset($_GET['action']))  {
