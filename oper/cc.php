@@ -1,7 +1,6 @@
 <?php
 if ($_GET['op']=='cc') {
-$path='/var/www/html/';
-include_once $path.'db.php';
+include_once 'db.php';
 $cc='';
 $cc.= "<h1>Начисение по счетчику</h1>";
 $cc.= "<form name='cc' action='index.php' method='get'>";
@@ -23,16 +22,16 @@ $cc.="<div id='counter_div'> </div>";
  /* $cc.= "<form name='new' action='index.php' method='get'>";
  
   $cc.=  "<label for='tc_fio'>Лицевой счет:</label>";
-  $cc.= "<input type='text' id='tc_id_tenant' disabled='disabled'> <br>";
+  $cc.= "<input type='text' id='cc_id_tenant' disabled='disabled'> <br>";
     
   $cc.=  "<label for='tc_fio'>ФИО:</label>";
-  $cc.= "<input type='text' id='tc_fio' disabled='disabled'> <br>";
+  $cc.= "<input type='text' id='cc_fio' disabled='disabled'> <br>";
   
   $cc.=  "<label for='tc_s'>Площадь:</label>";
-  $cc.= "<input type='text' id='tc_S'  disabled='disabled'> <br>";
+  $cc.= "<input type='text' id='cc_S'  disabled='disabled'> <br>";
   
   $cc.=  "<label for='tc_kolvo'>Количество человек:</label>";
-  $cc.= "<input type='text' id='tc_kolvo'  disabled='disabled'> <br>";
+  $cc.= "<input type='text' id='cc_kolvo'  disabled='disabled'> <br>";
   $cc.= "</form>";
 
   

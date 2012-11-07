@@ -1,8 +1,6 @@
 <?php
 if ($_GET['db']=='hs') {
-$path='/var/www/html/';
-include_once $path.'db.php';
-$k=$my->query("SET NAMES utf8");
+include_once 'db.php';
 $hs='';
 #Поиск
 if (!isset($_GET['action']))  {
@@ -264,105 +262,4 @@ if (!isset($_GET['action']) || ($_GET['action']=='cancel') || ($_GET['action']==
 $hs.= "</form>";
 return $hs;
 }
-
-
-
-/*#Сохранение отредактированной записи
-if (isset($_GET['action']) && ($_GET['action']=='edit.save')) {
-  $proc=mysql_query('update `service_for_house` set id_service='.$_GET['id_service'].', id_house='.$_GET['id_house'].' where id_sfh='.$_GET['id_sfh']);
-header("Location: index.php?page=spravochnik&db=hs");
-exit();
-
-}   
-#Сохранение новой записи
-if (isset($_GET['action']) && ($_GET['action']=='new.save')) {
-  $q=mysql_query('select max(id_sfh) as max from `service_for_house`');
-@$row=mysql_fetch_assoc($q);   
- $proc=mysql_query('insert into `service_for_house` values ('.($row['max']+1).','.$_GET['id_house'].','.$_GET['id_service'].' )');
-header("Location: index.php?page=spravochnik&db=hs");
-exit;
-} */
- 
-#Поиск
-/*if (isset($_GET['search'])) { 
-if ($_GET['search'] != '') {
-	$q=mysql_query('SELECT  sfh.*, h.adress, s.name_service FROM  `service_for_house` sfh join house h on h.id_house=sfh.id_house join service s on s.id_service=sfh.id_service where h.adress like "%'.$_GET['search'].'%"  ');
-}} 
-if (isset($_GET['check'])) {
-  $q=mysql_query('SELECT  h.adress, s.name_service FROM  `service_for_house` sfh join house h on h.id_house=sfh.id_house join service s on s.id_service=sfh.id_service where sfh.id_sfh='.$_GET['check']);
-    /*$hs.= 'SELECT  sfh.*, h.adress, s.name_service FROM  `service_for_house` sfh join house h on h.id_house=sfh.id_house join service s on s.id_service=sfh.id_service where sfh.id_sfh='.$_GET['check'];
- exit; */
-/*} 
-  if (((!isset($_GET['search'])) && (!isset($_GET['check']))) || (($_GET['search'] == '') &&  (!isset($_GET['check']))))  {
-	$q=mysql_query('SELECT  sfh.*, h.adress, s.name_service FROM  `service_for_house` sfh join house h on h.id_house=sfh.id_house join service s on s.id_service=sfh.id_service');
-}
-#Создние таблицы
-if (isset($_GET['action']) && ($_GET['action']=='new.show')) {} else {
-$hs.= "<form name='table' action='index.php' method='get'>";
-$hs.= "<input type='hidden' name='page' value=".$_GET['page'].">";
-$hs.= "<input type='hidden' name='db' value=".$_GET['db'].">";
-$hs.= "<input type='hidden' name='action' value=edit.show>";
-$hs.= "<table border=1 cellspacing=0 cellpadding=2 width=680 px align='center'>";
-$hs.= "<tr>";
-$hs.= " <td> №</td>";
-$hs.= " <td> Адрес </td>";
-$hs.= " <td> Услуга </td>";
-$hs.= "<td></td>";
-$hs.= " </tr>";
-
-    $k=1;
-while (@$row=mysql_fetch_assoc($q)) {
-	$hs.= " <tr>";
-	$hs.= "<td>".$k."</td>";
-	$hs.= "<td>".$row['adress']."</td>";
-  $hs.= "<td>".$row['name_service']."</td>";
-	$hs.= "<td><input type='radio' name = 'check' value=".$row['id_sfh']."></td>";
-	$hs.= " </tr>";
-  $k++;
-}
-$hs.= "</table>";
-$hs.= "<br>";
-$hs.= "<button type=\"button\" onclick=\"location='index.php?page=spravochnik&db=hs&action=new.show'\">Новая запись</button>" ;
-$hs.= "<button type='submit'>Редактировать запись</button>";
-
-$hs.= "</form>";
-}
-#Редактирование выбранной записи
-if (isset($_GET['action']) && ($_GET['action']=='edit.show') && (isset($_GET['check'])))   {
-$q=mysql_query('SELECT  *  FROM  `service_for_house` where  id_sfh='.$_GET['check']);
-@$row=mysql_fetch_assoc($q); 
-$hs.= "<form name='edit' action='index.php' method='get'>";
-$hs.= "<input type='hidden' name='page' value=".$_GET['page'].">";
-$hs.= "<input type='hidden' name='db' value=".$_GET['db'].">";
-$hs.= "<input type='hidden' name='action' value='edit.save'>";
-$hs.= "<input type='hidden' name='id_sfh' value=".$_GET['check'].">";
-
-$hs.= "<label for='id_house'> Адрес: </label>";
-$hs.= "<select name='id_house' size=1>";
-$adr=mysql_query('SELECT * FROM  `house`');
-while (@$num=mysql_fetch_assoc($adr)) {
-if ($row['id_house']<>$num['id_house'])  {
-    $hs.= "<option value=".$num['id_house'].">".$num['adress']."</option>";
-}  else {
-  $hs.= "<option value=".$num['id_house']. " selected> ".$num['adress']."</option>";
-}
-}
-$hs.= "</select><br>";
-
-$hs.= "<label for='id_service'>Организация: </label>";
-$hs.= "<select name='id_service' size=1>";
-$adr=mysql_query('SELECT * FROM  `service`');
-while (@$num=mysql_fetch_assoc($adr)) {
-if ($row['id_service']<>$num['id_service'])  {
-    $hs.= "<option value=".$num['id_service'].">".$num['name_service']."</option>";
-}  else {
-  $hs.= "<option value=".$num['id_service']. " selected> ".$num['name_service']."</option>";
-}
-}
-$hs.= "</select><br>";
-
-$hs.= "<button type='submit'>Сохранить</button>";
-}
- -*/
- 
 ?>

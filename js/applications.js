@@ -961,11 +961,59 @@ living:living}, function (data) {
 			weekStart: 1
 		}).focus();
 	})
+	$('#col2').on('click', '#cp_date', function() {
+		$(this).datepicker({
+			format: 'yyyy-mm-dd',
+			weekStart: 1
+		}).focus();
+	})
   $('#col2').on('change', '#hs_new_counter', function() {
    var hs_counter=$('#hs_new_counter option:selected').val()
     $.post('application.php', {hs_counter:hs_counter}, function(data) {
               $('#div_counter').html(data.result)
       }, "json")
+  })
+  
+  $('#col2').on('change', '#cp_search_house', function() {
+	var house=$('#cp_search_house option:selected').val()
+	$.post('application.php', {cp:'cp_serv',cp_house:house}, function (data) {
+		$('#cp_serv').html(data.result);
+	}, "json")
+  //alert ($('#cp_search_house option:selected').val())
+  })
+    $('#col2').on('change', '#cp_search_service', function() {
+	var date = $('#cp_date').val()
+	var house=$('#cp_search_house option:selected').val()
+	var service=$('#cp_search_service option:selected').val()
+	$.post('application.php', {cp:'cp_count',cp_house:house, cp_service:service,cp_date:date}, function (data) {
+		$('#cp_count').html(data.result);
+	}, "json")
+  //alert ($('#cp_search_house option:selected').val())
+  })
+  
+  $('#col2').on('keyup', '#max_counter', function() {
+	var min = $('#min_counter').val()
+	var max = $('#max_counter').val()
+	var norma=$('#cp_norma').val()
+	var ipu=$('#cp_ipu').val()
+	var nej=$('#cp_nej').val()
+	var v= parseFloat(norma)+parseFloat(ipu)+parseFloat(nej);
+	$.post('application.php', {cp:'cp_v',cp_max:max, cp_min:min,cp_v:v}, function (data) {
+		$('#odn').val(data.ost);
+		$('#cp_v').val(data.result);
+	}, "json")
+  })
+  $('#col2').on('click', '#cp_rasch', function() {
+	var odn=$('#odn').val();
+	var house=$('#cp_search_house option:selected').val()
+	var service=$('#cp_search_service option:selected').val()
+	if ((odn=='') && (v=='')) {
+		alert ('Введите показания счетчиков')
+	} else {
+		$.post('application.php', {cp:'cp_ved',cp_house:house, cp_service:service,cp_odn:odn}, function (data) {
+			$('#cp_ved').html(data.result);
+		}, "json")
+	}
   })
  //-----------------------------------------------------------------------------
 

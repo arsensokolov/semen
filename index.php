@@ -13,7 +13,7 @@ include 'sprav/leftover.php';
 include 'sprav/tc.php';
 include 'oper/ai.php';
 include 'oper/cc.php';
-include 'print.php';
+include 'oper/cp.php';
 
 if (isset($_GET['logout'])) {
     session_unset();
@@ -54,5 +54,6 @@ $tpl=str_replace("{tc}", $tc, $tpl);
 $tpl=str_replace("{tenant}", $tenant, $tpl);
 $tpl=str_replace("{ai}", $ai, $tpl);
 $tpl=str_replace("{cc}", $cc, $tpl);
+$tpl=str_replace("{cp}", $cp, $tpl);
 echo $tpl;
 ?>

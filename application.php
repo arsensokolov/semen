@@ -1,6 +1,5 @@
 <?php
-$path='/var/www/html/';
-include_once $path.'db.php';
+include_once 'db.php';
 /*if (isset($_POST['tc_edit_id_service']) && isset($_POST['tc_edit_id_tenant'])) {
 
 	$id_tenant=$_POST['tc_edit_id_tenant'];
@@ -98,17 +97,16 @@ if (isset($_POST['tc_new_id_house']) && isset($_POST['tc_new_number_flat']) && i
     $cc.= "<input type='text' id='cc_date' data-form='date' readOnly>  <br>";
        
     $cc.=  "<label for='tc_fio'>Лицевой счет:</label>";
-    $cc.= "<input type='text' id='tc_id_tenant' disabled='disabled' value=".$row['id_tenant'].">  <br>";
+    $cc.= "<input type='text' id='cc_id_tenant' disabled='disabled' value=".$row['id_tenant'].">  <br>";
       
     $cc.=  "<label for='tc_fio'>ФИО:</label>";
-    $cc.= "<input type='text' id='tc_fio' disabled='disabled' value=\"".$row['surname']." ".$row['name_tenant']. " ".$row['patronomic']."\"> <br>";
+    $cc.= "<input type='text' id='cc_fio' disabled='disabled' value=\"".$row['surname']." ".$row['name_tenant']. " ".$row['patronomic']."\"> <br>";
     
     $cc.=  "<label for='tc_s'>Площадь:</label>";
-    $cc.= "<input type='text' id='tc_S'  disabled='disabled' value=".$row['square']."> <br>";
+    $cc.= "<input type='text' id='cc_S'  disabled='disabled' value=".$row['square']."> <br>";
     
     $cc.=  "<label for='tc_kolvo'>Количество человек:</label>";
-    $cc.= "<input type='text' id='tc_kolvo'  disabled='disabled' value=".$row['quantity_of_lodger']."> <br>";
-    $cc.= "<input type='text' id='temp'> <br>";
+    $cc.= "<input type='text' id='cc_kolvo'  disabled='disabled' value=".$row['quantity_of_lodger']."> <br>";
     $cc.= "</form>";
     
     $cc.= "<table id='cc_table' border=1 cellspacing=0 cellpadding=2 width=680 px align='center'>";
@@ -178,5 +176,117 @@ if (isset($_POST['tc_new_id_house']) && isset($_POST['tc_new_number_flat']) && i
       foreach ($result as &$value) {
         $ten=$my->query($value);  
       }  
+  }
+  if (isset($_POST['cp']) && $_POST['cp']=='cp_serv') {
+  $cp='';
+  $adr=$my->query('SELECT s.id_service, s.name_service FROM  `service` s join service_for_house sfh on s.id_service=sfh.id_service
+  where sfh.counter=1 and sfh.id_house='.$_POST['cp_house']);
+  if ($adr->num_rows==0) {
+  $cp.= "У данного дома не установлено счетчиков";
+  } else {
+  $cp.= "<select id='cp_search_service' size=1>";
+  $cp.= "<option ></option>";
+  while (@$num=$adr->fetch_assoc()) {
+    $cp.= "<option value=".$num['id_service'].">".$num['name_service']."</option>";
+  }
+  $cp.= "</select><br>";
+  $cp.= "<button type=\"button\" id='cp_search'>Поиск</button> <br><br>" ;
+  }
+  echo json_encode(array("result"=>$cp));
+  }
+   if (isset($_POST['cp']) && $_POST['cp']=='cp_count') {
+  $cp='';
+  $house=$_POST['cp_house'];
+  $service=$_POST['cp_service'];
+  $date=$_POST['cp_date'];
+  $month=substr($date, -5, 2);
+  $year=substr($date, -10, 4);
+  $date1=date("Y-m-d",mktime(0, 0, 0, $month, 1, $year));
+  $date2=date("Y-m-d",mktime(0, 0, 0, $month+1, 0, $year));
+  //$cp.= $date1.' ';
+  //$cp.= $date2;
+  $cp.="Показание на начало месяца <input type='text' id='min_counter'> <br> ";
+  $cp.="Показание на конец месяца <input type='text' id='max_counter'> <br>  ";
+  //по норме
+  $norma=$my->query('SELECT (round(sum(s.price_for_1_sqr_metre_k2* t.square+price_for_1_people_k2* t.quantity_of_lodger),2)) as sum FROM 
+  `tenant_card` tc join the_tenant t on t.id_tenant=tc.id_tenant join service s on s.id_service=tc.id_service
+   where t.id_house ='.$house.' and t.living=1 and tc.counter=0 and s.id_service='.$service);
+  //по счетчикам
+  $cc=$my->query('SELECT (sum(cc.count)) as sum  FROM `calculation_counter` cc join  counter c on cc.counter = c.id join tenant_card tc on c.id_card=tc.id_card 
+  join the_tenant t on t.id_tenant=tc.id_tenant where t.living=1 and tc.counter=1 
+  and tc.id_service='.$service.' and t.id_house='.$house.' and date between '.$date1.' and '.$date2);
+  $normanej=$my->query('SELECT (round(sum(s.price_for_1_sqr_metre_k2* t.square+price_for_1_people_k2* t.quantity_of_lodger),2)) as sum FROM 
+  `tenant_card` tc join the_tenant t on t.id_tenant=tc.id_tenant join service s on s.id_service=tc.id_service
+   where t.id_house ='.$house.' and t.living=0 and tc.counter=0 and s.id_service='.$service);
+  //по счетчикам
+  $ccnej=$my->query('SELECT sum(cc.count)  FROM `calculation_counter` cc join  counter c on cc.counter = c.id join tenant_card tc on c.id_card=tc.id_card 
+  join the_tenant t on t.id_tenant=tc.id_tenant where t.living=0 and tc.counter=1 
+  and tc.id_service='.$service.' and t.id_house='.$house.' and date between "'.$date1.'" and "'.$date2.'"');
+  $norma1=$norma->fetch_assoc();
+  $cc1=$cc->fetch_assoc();
+  $normanej1=$normanej->fetch_assoc();
+  $ccnej1=$ccnej->fetch_assoc();
+  if ($norma1['sum']=='') $norma1['sum']=0;
+  if ($cc1['sum']=='') $cc1['sum']=0;
+  if ($normanej1['sum']=='') $normanej1['sum']=0;
+  if ($ccnej1['sum']=='') $ccnej1['sum']=0;
+  $cp.= 'Объем за месяц';
+  $cp.=	"<input type='text' id='cp_v' readOnly > <br>";
+  $cp.= 'Начислено по нормативу';
+  $cp.=	"<input type='text' id='cp_norma' readOnly value=".$norma1['sum']."> <br>";
+  $cp.= 'Начислено по ИПУ';
+  $cp.=	"<input type='text' id='cp_ipu' readOnly value=".$cc1['sum']."> <br>";
+  $cp.= 'Начислено по нежилым помещениям';
+  $cp.=	"<input type='text' id='cp_nej' readOnly value=".($normanej1['sum']+$ccnej1['sum'])." > <br>";
+  $cp.= 'Общедомовые нужды';
+  $cp.=	"<input type='text' id='odn' readOnly> <br>";
+  $cp.= "<button type=\"button\" id='cp_rasch'>Рассчитать</button> <br><br>" ;
+   echo json_encode(array("result"=>$cp));
+  }
+  if (isset($_POST['cp']) && $_POST['cp']=='cp_v') {
+	
+	$min=$_POST['cp_min'];
+	$max=$_POST['cp_max'];
+	$v=$_POST['cp_v'];
+	$od=$max-$min;
+	$ost=$max-$min-$v;
+	echo json_encode(array("result"=>$od,"ost"=>$ost));
+  }
+    if (isset($_POST['cp']) && $_POST['cp']=='cp_ved') {
+	
+	$t='';
+	$t.= "<table id='cc_table' border=1 cellspacing=0 cellpadding=2 width=680 px align='center'>";
+    $t.= "<tr>";
+    $t.= " <td> № ЛС</td>";
+    $t.= " <td> № кв-ры </td>";
+    $t.= " <td> Фамилия </td>";
+    $t.= " <td> Объем </td>";
+    $t.= " <td> Сумма </td>";
+    $t.= " <td> Примечание </td>";
+    $t.= " </tr>";
+	$house=$_POST['cp_house'];
+	$service=$_POST['cp_service'];
+	$odn=$_POST['cp_odn'];
+	$ser=$my->query('SELECT * FROM service where id_service='.$service);
+	$serv=$ser->fetch_assoc();
+	$price=($serv['price_for_1_people_k1'])+($serv['price_for_1_sqr_metre_k1']);
+	$s=$my->query('SELECT id_tenant,number_flat, surname, 
+round(square/(SELECT round(sum(square),2) as sqare FROM the_tenant where id_house=19),5) as sum  
+FROM the_tenant t  where t.id_house='.$house);
+	while (@$sq=$s->fetch_assoc()) {
+		$t.= "<tr>";
+		$t.= " <td> ".$sq['id_tenant']."</td>";
+		$t.= " <td> ".$sq['number_flat']."</td>";
+		$t.= " <td> ".$sq['surname']."</td>";
+		$summa=$sq['sum']*$odn;
+		$t.= " <td> ".$summa."</td>";
+		$amount=$summa*$price;
+		$t.= " <td> ".$amount."</td>";
+		$t.= " <td> askdjal</td>";
+		$t.= " </tr>";		
+	}
+	$t.="</table>";
+	  
+	echo json_encode(array("result"=>$t));
   }
 ?>                     
