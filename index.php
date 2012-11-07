@@ -1,16 +1,36 @@
 <?php
 session_start();
-include_once 'db.php';
+include_once __DIR__.'/db.php';
 include 'sprav/class.php';
-include 'sprav/company.php';
-include 'sprav/domain.php';
-include 'sprav/adress.php';
-include 'sprav/general_service.php';
-include 'sprav/service.php';
-include 'sprav/hs.php';
-include 'sprav/tenant.php';
-include 'sprav/leftover.php';
-include 'sprav/tc.php';
+switch($_GET['db']) {
+	case 'company':
+		include 'sprav/company.php';
+		break;
+	case 'gs':
+		include 'sprav/general_service.php';
+		break;
+	case 'service':
+		include 'sprav/service.php';
+		break;
+	case 'domain':
+		include 'sprav/domain.php';
+		break;
+	case 'adress':
+		include 'sprav/adress.php';
+		break;
+	case 'hs':
+		include 'sprav/hs.php';
+		break;
+	case 'tenant':
+		include 'sprav/tenant.php';
+		break;
+	case 'tc':
+		include 'sprav/tc.php';
+		break;
+	case 'leftover':
+		include 'sprav/leftover.php';
+		break;
+}
 include 'oper/ai.php';
 include 'oper/cc.php';
 include 'oper/cp.php';
@@ -44,8 +64,8 @@ $tpl.=file_get_contents("tpl/footer.tpl");
 $tpl=str_replace("{Hello}", $hello, $tpl);
 $tpl=str_replace("{title}", $title, $tpl);
 $tpl=str_replace("{company}", $company, $tpl);
-$tpl=str_replace("{adress}", $adress, $tpl);
 $tpl=str_replace("{gs}", $gs, $tpl);
+$tpl=str_replace("{adress}", $adress, $tpl);
 $tpl=str_replace("{domain}", $domain, $tpl);
 $tpl=str_replace("{hs}", $hs, $tpl);
 $tpl=str_replace("{leftover}", $leftover, $tpl);
