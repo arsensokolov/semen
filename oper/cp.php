@@ -14,6 +14,7 @@ while (@$num=$adr->fetch_assoc()) {
 }
 $cp.= "</select><br>";
 $cp.='<div id="cp_serv"></div>';
+$cp.='<div id="cp_counter"></div>';
 $cp.= "</form>";
 $cp.='<div id="cp_count"></div>';
 $cp.='<div id="cp_ved"></div>';

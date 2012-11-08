@@ -115,7 +115,7 @@ if (isset($_POST['cc_number_flat']) && isset($_POST['cc_adress'])) {
 		if ($vod['id_sertype']==2) {
 			$cc.= " <tr id='vod'> "; 
 		} else {
-			$cc.= " <tr> ";.
+			$cc.= " <tr> ";
 		}
 		$cc.= "<td>".$k."</td>";
 		$cc.= "<td>".$zz['id_counter']."</td>";
@@ -182,7 +182,7 @@ if (isset($_POST['hs_edit_counter'])) {
 			} else {
 			$hs.= "<td>Обратка</td>";
 			}
-			$hs.= "<td><input type='radio' name = 'check' value=".$row['id']."></td>";
+			$hs.= "<td><input type='radio' name = 'c_check' value=".$row['id']."></td>";
 			$hs.= " </tr>";
 		}
 		$hs.= "</table> <br>";
@@ -208,7 +208,20 @@ if (isset($_POST['ch']) && $_POST['ch']=='add') {
 	echo json_encode(array("result"=>$hs));
 }
 
+//Услуги дома->СОХРАНЕНИЕ Добавление счетчика в услуги дома
+if (isset($_POST['ch']) && $_POST['ch']=='add_save') {
+	$id_sfh=$_POST['id_sfh'];
+	$id_counter=$_POST['id_counter'];
+	$type_counter=$_POST['type_counter'];
+	$q=$my->query('insert into counter_house values("",'.$id_counter.','.$id_sfh.','.$type_counter.')');
+}
 //--------------------------------------------------------------------
+
+//Услуги дома->Удаление счетчика из услуги дома
+if (isset($_POST['ch']) && $_POST['ch']=='add_del') {
+	$id_sfh=$_POST['id_sfh'];
+	$q=$my->query('delete from counter_house where id='.$id_sfh);
+}
 
 //ХЗ------------------------------------------------------------------ 
 if (isset($_POST['cc_text'])) {
@@ -234,14 +247,38 @@ if (isset($_POST['cp']) && $_POST['cp']=='cp_serv') {
 		while (@$num=$adr->fetch_assoc()) {
 			$cp.= "<option value=".$num['id_service'].">".$num['name_service']."</option>";
 		}
-		$cp.= "</select><br>";
-		$cp.= "<button type=\"button\" id='cp_search'>Поиск</button> <br><br>" ;
+	//$cp.= "<button type=\"button\" id='cp_search'>Поиск</button> <br><br>" ;
 	}
 	echo json_encode(array("result"=>$cp));
 }
 
 //Начисление по ОДПУ->Услуга 
-if (isset($_POST['cp']) && $_POST['cp']=='cp_count') {
+if (isset($_POST['cp']) && $_POST['cp']=='cp_counter') {
+	$cp='';
+	$house=$_POST['cp_house'];
+	$service=$_POST['cp_service'];
+	$c=$my->query('SELECT ch.id, ch.id_counter, ch.counter_type FROM `service_for_house` sfh join service s on sfh.id_service=s.id_service 
+	join house h on sfh.id_house=h.id_house join counter_house ch on ch.id_hs=sfh.id_sfh
+	where s.id_service='.$service.' and h.id_house = '.$house);
+	if ($c->num_rows==0) {
+		$cp.= "У данной услуги нет счетчиков";
+	} else {
+		$cp.= "<select id='cp_search_counter' size=1>";
+		$cp.= "<option ></option>";
+		while (@$num=$c->fetch_assoc()) {
+			if ($num['counter_type']==1) {
+				$cp.= "<option value=".$num['id']."> Счетчик № ".$num['id_counter']." прямой подачи</option>";
+			} else {
+				$cp.= "<option value=".$num['id']."> Счетчик № ".$num['id_counter']." обратной подачи</option>";
+			}
+		}
+		$cp.= "</select><br>";
+	}
+	echo json_encode(array("result"=>$cp));
+}
+
+//Начисление по ОДПУ->Счетчик
+if (isset($_POST['cp']) && $_POST['cp']=='cp_data') {
 	$cp='';
 	$house=$_POST['cp_house'];
 	$service=$_POST['cp_service'];
@@ -275,16 +312,18 @@ if (isset($_POST['cp']) && $_POST['cp']=='cp_count') {
 	if ($cc1['sum']=='') $cc1['sum']=0;
 	if ($normanej1['sum']=='') $normanej1['sum']=0;
 	if ($ccnej1['sum']=='') $ccnej1['sum']=0;
-	$cp.= 'Объем за месяц';
+	$cp.= 'Объем за месяц ';
 	$cp.=	"<input type='text' id='cp_v' readOnly > <br>";
-	$cp.= 'Начислено по нормативу';
+	$cp.= 'Начислено по нормативу ';
 	$cp.=	"<input type='text' id='cp_norma' readOnly value=".$norma1['sum']."> <br>";
-	$cp.= 'Начислено по ИПУ';
+	$cp.= 'Начислено по ИПУ ';
 	$cp.=	"<input type='text' id='cp_ipu' readOnly value=".$cc1['sum']."> <br>";
-	$cp.= 'Начислено по нежилым помещениям';
+	$cp.= 'Начислено по нежилым помещениям ';
 	$cp.=	"<input type='text' id='cp_nej' readOnly value=".($normanej1['sum']+$ccnej1['sum'])." > <br>";
-	$cp.= 'Общедомовые нужды';
+	$cp.= 'Общедомовые нужды ';
 	$cp.=	"<input type='text' id='odn' readOnly> <br>";
+	$cp.= 'Примечание ';
+	$cp.=	"<input type='text' id='cp_node'> <br>";
 	$cp.= "<button type=\"button\" id='cp_rasch'>Рассчитать</button> <br><br>" ;
 	echo json_encode(array("result"=>$cp));
 }
@@ -314,24 +353,37 @@ if (isset($_POST['cp']) && $_POST['cp']=='cp_ved') {
 	$house=$_POST['cp_house'];
 	$service=$_POST['cp_service'];
 	$odn=$_POST['cp_odn'];
+	$node=$_POST['cp_node'];
 	$ser=$my->query('SELECT * FROM service where id_service='.$service);
 	$serv=$ser->fetch_assoc();
 	$price=($serv['price_for_1_people_k1'])+($serv['price_for_1_sqr_metre_k1']);
 	$s=$my->query('SELECT id_tenant,number_flat, surname, 
 	round(square/(SELECT round(sum(square),2) as sqare FROM the_tenant where id_house='.$house.'),5) as sum  
 	FROM the_tenant t  where t.id_house='.$house);
+	$v=0;
+	$a=0;
 	while (@$sq=$s->fetch_assoc()) {
 		$t.= "<tr>";
 		$t.= " <td> ".$sq['id_tenant']."</td>";
 		$t.= " <td> ".$sq['number_flat']."</td>";
 		$t.= " <td> ".$sq['surname']."</td>";
 		$summa=$sq['sum']*$odn;
-		$t.= " <td> ".$summa."</td>";
+		$t.= " <td> ".round($summa,2)."</td>";
 		$amount=$summa*$price;
-		$t.= " <td> ".$amount."</td>";
-		$t.= " <td> askdjal</td>";
+		$t.= " <td> ".round($amount,2)."</td>";
+		$t.= " <td> ".$node."</td>";
 		$t.= " </tr>";		
+		$v=$v+round($summa,2);
+		$a=$a+round($amount,2);
 	}
+	$t.= "<tr>";
+	$t.= " <td> </td>";
+	$t.= " <td> </td>";
+	$t.= " <td> Итого</td>";
+	$t.= " <td> ".round($v,2)."</td>";
+	$t.= " <td> ".round($a,2)."</td>";
+	$t.= " <td> </td>";
+	$t.= " </tr>";		
 	$t.="</table>";
 	echo json_encode(array("result"=>$t));
 }

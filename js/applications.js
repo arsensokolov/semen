@@ -502,12 +502,12 @@ $('#col2').on('click', '#hs_new', function() {
  
 //Услуги дома->Создание формы Редактирование записи
 $('#col2').on('click', '#hs_edit', function() {
-   var chdel = $('input[name=check]:radio:checked').val()
-   if (chdel!== undefined) {
-  $.get("sprav/hs.php", {page: "spravochnik", db:"hs",action:"edit", check:chdel}, function (data) {
-   $('#col2').html(data);
-   })
-   }
+	var chdel = $('input[name=check]:radio:checked').val()
+	if (chdel!== undefined) {
+		$.get("sprav/hs.php", {page: "spravochnik", db:"hs",action:"edit", check:chdel}, function (data) {
+		$('#col2').html(data);
+		})
+	}
  })
  
 //Услуги дома->Создание формы Удалить запись
@@ -560,6 +560,7 @@ $('#col2').on('click', '#hs_edit_data', function() {
     if (counter==1) {
 		var counter_direct= $('#hs_counter_direct').val()
 		var counter_return= $('#hs_counter_return').val()
+		
 		$.get("sprav/hs.php", {page: "spravochnik", db:"hs",action:"hs_edit_data",id_house :id_house,
 		id_service:id_service, counter:counter, hs_counter_direct:counter_direct, hs_counter_return:counter_return}, 
 		function (data) {
@@ -608,6 +609,32 @@ $('#col2').on('click', '#hs_counter_add', function() {
 $('#col2').on('click', '#hs_counter_cancel', function() {
                  $('#div_counter_hs').html('')
   })
+
+//Услуги дома->Сохранение нового счетчика при редактировании услуги
+$('#col2').on('click', '#hs_counter_save', function() {
+	var id_sfh = $('input[name=check]:radio:checked').val()
+	var id_counter=$('#hs_id_counter').val()
+	var type_counter=$('#hs_type_counter option:selected').val()	
+	var hs_counter=$('#hs_edit_counter option:selected').val()
+	$.post('application.php', {ch:'add_save',id_sfh:id_sfh,id_counter:id_counter,type_counter:type_counter}, function(data) {
+		}, "json")
+	$.post('application.php', {hs_edit_counter:hs_counter,id_sfh:id_sfh}, function(data) {
+		$('#div_counter').html(data.result)
+    }, "json")
+	$('#div_counter_hs').html('')
+})
+
+//Услуги дома->Удаление счетчика при редактировании услуги
+$('#col2').on('click', '#hs_counter_del', function() {
+	var id_c = $('input[name=c_check]:radio:checked').val()
+	var id_sfh = $('input[name=check]:radio:checked').val()
+	var hs_counter=$('#hs_edit_counter option:selected').val()
+	$.post('application.php', {ch:'add_del',id_sfh:id_c}, function(data) {
+	}, "json")
+	$.post('application.php', {hs_edit_counter:hs_counter,id_sfh:id_sfh}, function(data) {
+		$('#div_counter').html(data.result)
+    }, "json")
+})
 
 //------------------------------------------------------------------
 
@@ -1086,6 +1113,8 @@ $('#col2').on('change', '#cp_search_house', function() {
 	var house=$('#cp_search_house option:selected').val()
 	$.post('application.php', {cp:'cp_serv',cp_house:house}, function (data) {
 		$('#cp_serv').html(data.result);
+		$('#cp_counter').html('');
+		$('#cp_count').html('');
 	}, "json")
   })
 
@@ -1094,12 +1123,24 @@ $('#col2').on('change', '#cp_search_service', function() {
 	var date = $('#cp_date').val()
 	var house=$('#cp_search_house option:selected').val()
 	var service=$('#cp_search_service option:selected').val()
-	$.post('application.php', {cp:'cp_count',cp_house:house, cp_service:service,cp_date:date}, function (data) {
-		$('#cp_count').html(data.result);
+	$.post('application.php', {cp:'cp_counter',cp_house:house, cp_service:service,cp_date:date}, function (data) {
+		$('#cp_counter').html(data.result);
+		$('#cp_count').html('');
 	}, "json")
-  //alert ($('#cp_search_house option:selected').val())
   })
 
+//Начисление по ОДПУ->Счетчик 
+$('#col2').on('change', '#cp_search_counter', function() {
+	var date = $('#cp_date').val()
+	var house=$('#cp_search_house option:selected').val()
+	var service=$('#cp_search_service option:selected').val()
+	var counter=$('#cp_search_counter option:selected').val()
+	$.post('application.php', {cp:'cp_data',cp_house:house, cp_service:service,cp_date:date}, function (data) {
+		$('#cp_count').html(data.result);
+		
+	}, "json")
+  })
+  
 //Начисление по ОДПУ->Конечные показания счетчика  
 $('#col2').on('keyup', '#max_counter', function() {
 	var min = $('#min_counter').val()
@@ -1119,10 +1160,11 @@ $('#col2').on('click', '#cp_rasch', function() {
 	var odn=$('#odn').val();
 	var house=$('#cp_search_house option:selected').val()
 	var service=$('#cp_search_service option:selected').val()
-	if ((odn=='') && (v=='')) {
+	var cp_node=$('#cp_node').val();
+	if (odn=='') {
 		alert ('Введите показания счетчиков')
 	} else {
-		$.post('application.php', {cp:'cp_ved',cp_house:house, cp_service:service,cp_odn:odn}, function (data) {
+		$.post('application.php', {cp:'cp_ved',cp_house:house, cp_service:service,cp_odn:odn,cp_node:cp_node}, function (data) {
 			$('#cp_ved').html(data.result);
 		}, "json")
 	}

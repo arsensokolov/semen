@@ -2,7 +2,6 @@
 if ($_GET['db']=='hs') {
 include_once __DIR__.'/../db.php';
 $hs='';
-#Поиск
 if (!isset($_GET['action']))  {
     $hs.= showtable_hs($my);
    } else {
@@ -114,55 +113,75 @@ function hs_del_form($my) {
 } 
 
 function hs_edit_form($my) {
-//echo var_dump($_GET);
-//echo 'SELECT  *  FROM  `service_for_house` where  id_sfh='.$_GET['check'];
- $q=$my->query('SELECT  *  FROM  `service_for_house` where  id_sfh='.$_GET['check']);
-$row=$q->fetch_assoc(); 
-$hs.= "<form name='edit' action='index.php' method='get'>";
-$hs.= "<input type='hidden' name='page' value=".$_GET['page'].">";
-$hs.= "<input type='hidden' name='db' value=".$_GET['db'].">";
-$hs.= "<input type='hidden' name='action' value='edit.save'>";
-$hs.= "<input type='hidden' name='id_sfh' value=".$_GET['check'].">";
+	$q=$my->query('SELECT  *  FROM  `service_for_house` where  id_sfh='.$_GET['check']);
+	$row=$q->fetch_assoc(); 
+	$hs.= "<form name='edit' action='index.php' method='get'>";
+	$hs.= "<input type='hidden' name='page' value=".$_GET['page'].">";
+	$hs.= "<input type='hidden' name='db' value=".$_GET['db'].">";
+	$hs.= "<input type='hidden' name='action' value='edit.save'>";
+	$hs.= "<input type='hidden' name='id_sfh' value=".$_GET['check'].">";
+	$hs.= "<label for='id_house'> Адрес: </label>";
+	$hs.= "<select id='id_house' size=1>";
+	$adr=$my->query('SELECT * FROM  `house`');
+	while (@$num=$adr->fetch_assoc()) {
+		if ($row['id_house']<>$num['id_house']) {
+			$hs.= "<option value=".$num['id_house'].">".$num['adress']."</option>";
+		} else {
+			$hs.= "<option value=".$num['id_house']. " selected> ".$num['adress']."</option>";
+		}
+	}
+	$hs.= "</select><br>";
+	$hs.= "<label for='id_service'>Организация: </label>";
+	$hs.= "<select id='id_service' size=1>";
+	$adr=$my->query('SELECT * FROM  `service`');
+	while (@$num=$adr->fetch_assoc()) {
+		if ($row['id_service']<>$num['id_service'])  {
+			$hs.= "<option value=".$num['id_service'].">".$num['name_service']."</option>";
+		} else {
+			$hs.= "<option value=".$num['id_service']. " selected> ".$num['name_service']."</option>";
+		}
+	}
+	$hs.= "</select><br>";
+	$hs.= "<label for='hs_edit_counter'>Установлен ли счетчик: </label>";
+	$hs.= "<select id='hs_edit_counter' size=1'>";
+	if ($row['counter']==0) {
+		$hs.= "<option value=0 selected>Не установлен</option>";
+		$hs.= "<option value=1>Установлен</option>";
+		$hs.= "</select><br>";		
+	} else {
+		$hs.= "<option value=0>Не установлен</option>";
+		$hs.= "<option value=1 selected>Установлен</option>";
+		$hs.= "</select><br>";
+		$hs.= "<div id='div_counter'> ";
+		$q=$my->query('select * from counter_house where id_hs='.$_GET['check']);
+		$hs.= "<table border=1 cellspacing=0 cellpadding=2 width=680 px align='center'>";
+		$hs.= "<tr>";
+		$hs.= " <td> № счетчика</td>";
+		$hs.= " <td> Тип счетчика</td>";
+		$hs.= "<td></td>";
+		$hs.= " </tr>";
+		while (@$row=$q->fetch_assoc()) 	{
+			$hs.= " <tr>";
+			$hs.= "<td>".$row['id_counter']."</td>";
+			if ($row['counter_type']==1) {
+				$hs.= "<td>Подача</td>";
+			} else {
+				$hs.= "<td>Обратка</td>";
+			}
+			$hs.= "<td><input type='radio' name = 'c_check' id = 'c_check'value=".$row['id']."></td>";
+			$hs.= " </tr>";
+		}
+		$hs.= "</table> <br>";
+		$hs.= "<center><button type=\"button\" id='hs_counter_add'>Добавить</button> " ;
+		$hs.= "<button type=\"button\" id='hs_counter_del'>Удалить</button> </center><br><br>" ;
+		$hs.= "</div>";
+		$hs.= "<div id='div_counter_hs'> </div>";
+	}
 
-$hs.= "<label for='id_house'> Адрес: </label>";
-$hs.= "<select id='id_house' size=1>";
-$adr=$my->query('SELECT * FROM  `house`');
-while (@$num=$adr->fetch_assoc()) {
-if ($row['id_house']<>$num['id_house'])  {
-    $hs.= "<option value=".$num['id_house'].">".$num['adress']."</option>";
-}  else {
-  $hs.= "<option value=".$num['id_house']. " selected> ".$num['adress']."</option>";
-}
-}
-$hs.= "</select><br>";
-
-$hs.= "<label for='id_service'>Организация: </label>";
-$hs.= "<select id='id_service' size=1>";
-$adr=$my->query('SELECT * FROM  `service`');
-while (@$num=$adr->fetch_assoc()) {
-if ($row['id_service']<>$num['id_service'])  {
-    $hs.= "<option value=".$num['id_service'].">".$num['name_service']."</option>";
-}  else {
-  $hs.= "<option value=".$num['id_service']. " selected> ".$num['name_service']."</option>";
-}
-}
-$hs.= "</select><br>";
-
- $hs.= "<label for='hs_edit_counter'>Установлен ли счетчик: </label>";
-  $hs.= "<select id='hs_edit_counter' size=1'>";
-  if ($row['counter']==0) {
-  $hs.= "<option value=0 selected>Не установлен</option>";
-  $hs.= "<option value=1>Установлен</option>";
-  } else {
-  $hs.= "<option value=0>Не установлен</option>";
-  $hs.= "<option value=1 selected>Установлен</option>";
-  }
-$hs.= "</select><br>";
-$hs.= "<div id='div_counter'> </div>";
-$hs.= "<button type=\"button\" id=\"hs_edit_data\">Сохранить</button></center>"; 
-$hs.= "<button type=\"button\" id=\"hs_cancel\">Отмена</button></center>";
-$hs.= "</form>";
-return $hs;
+	$hs.= "<button type=\"button\" id=\"hs_edit_data\">Сохранить</button></center>"; 
+	$hs.= "<button type=\"button\" id=\"hs_cancel\">Отмена</button></center>";
+	$hs.= "</form>";
+	return $hs;
 }
 
 function hs_new_form($my) {
