@@ -71,7 +71,7 @@ $('#col2').on('click', '#ser_del_data', function() {
  }
 })
 
-//Поиск
+//Услуги->Поиск
 $('#col2').on('click', '#service_search', function() {
  var search=$('#service_search_text').val()
  if (search!=='') {
@@ -88,14 +88,14 @@ $('#col2').on('click', '#service_search', function() {
 //---------------------------------------------------------------------------
 
 //Функции для справочника Основные услуги
-//Открытие формы Новая запись
+//Основные услуги->Открытие формы Новая запись
 $('#col2').on('click', '#gs_new', function() {
   $.get("sprav/general_service.php", {page: "spravochnik", db:"gs",action:"new"}, function (data) {
    $('#col2').html(data);
    })
  })
 
- //Открытие формы Редактировать запись
+ //Основные услуги->Открытие формы Редактировать запись
 $('#col2').on('click', '#gs_edit', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
@@ -105,7 +105,7 @@ $('#col2').on('click', '#gs_edit', function() {
    }
  })
  
- //Открытие формы Удалить запись
+ //Основные услуги->Открытие формы Удалить запись
   $('#col2').on('click', '#gs_del', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
@@ -115,14 +115,14 @@ $('#col2').on('click', '#gs_edit', function() {
    }
  })
  
- //Отмена
+ //Основные услуги->Отмена
  $('#col2').on('click', '#gs_cancel', function() {
   $.get("sprav/general_service.php", {page: "spravochnik", db:"gs",action:"cancel"}, function (data) {
    $('#col2').html(data);
    })
  })
  
- //Поиск
+ //Основные услуги->Поиск
 $('#col2').on('click', '#gs_search', function() {
  var search=$('#gs_search_text').val()
  if (search!=='') {
@@ -136,7 +136,7 @@ $('#col2').on('click', '#gs_search', function() {
    }
  })
  
- //Сохранение отредактированной записи
+ //Основные услуги->Сохранение отредактированной записи
 $('#col2').on('click', '#gs_edit_save', function() {
  var id_gs=$('#id_gs').val()
  var name_gs=$('#name_gs').val()
@@ -147,7 +147,7 @@ $('#col2').on('click', '#gs_edit_save', function() {
    } 
    })
  
- //Сохранение новой записи
+ //Основные услуги->Сохранение новой записи
 $('#col2').on('click', '#gs_new_save', function() {
  var name_gs=$('#name_gs').val()
  if (name_gs!=='') {
@@ -157,7 +157,7 @@ $('#col2').on('click', '#gs_new_save', function() {
    }   
  })
  
- //Удаление записи
+ //Основные услуги->Удаление записи
 $('#col2').on('click', '#gs_del_data', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
@@ -170,7 +170,7 @@ $('#col2').on('click', '#gs_del_data', function() {
 //---------------------------------------------------------------------------
 
 //Функции для справочника Постащики услуг
-//Поиск
+//Постащики услуг->Поиск
 $('#col2').on('click', '#company_search', function() {
  var search=$('#company_search_text').val()
  if (search!=='') {
@@ -184,7 +184,7 @@ $('#col2').on('click', '#company_search', function() {
    }
  })
  
- //Создание формы Новая запись
+//Постащики услуг->Создание формы Новая запись
 $('#col2').on('click', '#com_new', function() {
 	$.get("sprav/company.php", {page: "spravochnik", db:"company",action:"new"}, function (data) {
 		$('#col2').html(data);
@@ -194,7 +194,7 @@ $('#col2').on('click', '#com_new', function() {
 	})
 })
  
- //Создание формы Редактирование записи
+//Постащики услуг->Создание формы Редактирование записи
 $('#col2').on('click', '#com_edit', function() {
 	var chdel = $('input[name=check]:radio:checked').val()
 	if (chdel!== undefined) {
@@ -207,7 +207,7 @@ $('#col2').on('click', '#com_edit', function() {
 	}
 })
  
- //Создание формы Удалить запись
+//Постащики услуг->Создание формы Удалить запись
 $('#col2').on('click', '#com_del', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
@@ -217,14 +217,14 @@ $('#col2').on('click', '#com_del', function() {
    }
  })
 
-//Отмена
+//Постащики услуг->Отмена
 $('#col2').on('click', '#com_cancel', function() {
 	$.get("sprav/company.php", {page: "spravochnik", db:"company",action:"cancel"}, function (data) {
 		$('#col2').html(data);
 	})
 })
 
-//Сохранение новой записи
+//Постащики услуг->Сохранение новой записи
 $('#col2').on('click', '#com_new_data', function() {
 	var name_company=$('#name_company').val()
 	var surname_accountant=$('#surname_accountant').val()
@@ -271,7 +271,7 @@ $('#col2').on('change', '#ogrn', function() {
 })
 //--- Валидация формы (конец)
 
- //Сохранение редактированной записи
+ //Постащики услуг->Сохранение редактированной записи
 $('#col2').on('click', '#com_edit_data', function() {
      var chdel = $('input[name=check]:radio:checked').val()
      var name_company=$('#name_company').val()
@@ -286,7 +286,7 @@ $('#col2').on('click', '#com_edit_data', function() {
    })
  })
  
- //Удаление записи
+ //Постащики услуг->Удаление записи
  $('#col2').on('click', '#com_del_data', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
@@ -1100,7 +1100,7 @@ $('#col2').on('change', '#cp_search_service', function() {
   //alert ($('#cp_search_house option:selected').val())
   })
 
-//Начисление по ОДПУ->Конечные йпоказания счетчика  
+//Начисление по ОДПУ->Конечные показания счетчика  
 $('#col2').on('keyup', '#max_counter', function() {
 	var min = $('#min_counter').val()
 	var max = $('#max_counter').val()
