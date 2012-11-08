@@ -1,32 +1,15 @@
 $(document).ready(function(){   
-
-	/*$('#id_service').change(function() { 
-		
-		$('#id_service option:selected').each(function() { 
-			
-			var id_service = $(this).val();
-			var id_tenant = $('#id_tenant').val();
-			
-			var request = $.ajax({
-				url: "application.php",
-				type: "POST",
-				data: {tc_edit_id_service: id_service, tc_edit_id_tenant: id_tenant}
-			}).done(function(msg) { 
-				$('#amount').val(msg);
-			})
-		})
-	}).change();
-  
-   */
-
-// Выбор по строке таблицы
+//Глобальные фунцкции
+//Выбор по строке таблицы
 $('#col2').on('click', 'tr', function(e) {
 	if (e.target.type !== 'radio') {
 		$(':radio', this).click();
 	}
 })
+//-------------------------------------------------
 
 //Функции для справочника Услуги
+//Услуги->Удаление записи
 $('#col2').on('click', '#ser_del', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
@@ -35,12 +18,15 @@ $('#col2').on('click', '#ser_del', function() {
    })
  }
 })
+
+//Услуги->Новая запись
 $('#col2').on('click', '#ser_new', function() { 
   $.get("sprav/service.php", {page: "spravochnik", db:"service",action:"new"}, function (data) {
    $('#col2').html(data);   
    })
  })  
  
+//Услуги->Редактирование записи 
 $('#col2').on('click', '#ser_edit', function() {
      var chdel = $('input[name=check]:radio:checked').val(); 
  if (chdel!== undefined) {     
@@ -49,14 +35,16 @@ $('#col2').on('click', '#ser_edit', function() {
    })
    }
    })
-   
- $('#col2').on('click', '#ser_cancel', function() {
+
+//Услуги->Отмена   
+$('#col2').on('click', '#ser_cancel', function() {
   $.get("sprav/service.php", {page: "spravochnik", db:"service", action:"cancel"}, function (data) {
    $('#col2').html(data);   
    })
  })
 
- $('#col2').on('submit','#ser_new_form', function () {
+//Услуги->Форма новая запись
+$('#col2').on('submit','#ser_new_form', function () {
   var req = $('[data-form*=requered]').val();
   if (req == '') {
   alert ('Пожалуйста, заполните все поля')
@@ -64,7 +52,8 @@ $('#col2').on('click', '#ser_edit', function() {
   } else { return true;}
  })
 
- $('#col2').on('submit','#ser_edit_form', function () {
+//Услуги->Форма редактирование записи 
+$('#col2').on('submit','#ser_edit_form', function () {
   var req = $('[data-form*=requered]').val();
   if (req == '') {
   alert ('Пожалуйста, заполните все поля')
@@ -72,6 +61,7 @@ $('#col2').on('click', '#ser_edit', function() {
   } else { return true;}
  })
 
+//Услуги->Форма удаление записи
 $('#col2').on('click', '#ser_del_data', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
@@ -80,6 +70,7 @@ $('#col2').on('click', '#ser_del_data', function() {
    })
  }
 })
+
 //Поиск
 $('#col2').on('click', '#service_search', function() {
  var search=$('#service_search_text').val()
@@ -93,6 +84,7 @@ $('#col2').on('click', '#service_search', function() {
    })
  }
 })
+
 //---------------------------------------------------------------------------
 
 //Функции для справочника Основные услуги
@@ -102,8 +94,9 @@ $('#col2').on('click', '#gs_new', function() {
    $('#col2').html(data);
    })
  })
-//Открытие формы Редактировать запись
- $('#col2').on('click', '#gs_edit', function() {
+
+ //Открытие формы Редактировать запись
+$('#col2').on('click', '#gs_edit', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
   $.get("sprav/general_service.php", {page: "spravochnik", db:"gs",action:"edit",check: chdel }, function (data) {
@@ -111,6 +104,7 @@ $('#col2').on('click', '#gs_new', function() {
    })
    }
  })
+ 
  //Открытие формы Удалить запись
   $('#col2').on('click', '#gs_del', function() {
  var chdel = $('input[name=check]:radio:checked').val()
@@ -120,14 +114,16 @@ $('#col2').on('click', '#gs_new', function() {
    })
    }
  })
+ 
  //Отмена
  $('#col2').on('click', '#gs_cancel', function() {
   $.get("sprav/general_service.php", {page: "spravochnik", db:"gs",action:"cancel"}, function (data) {
    $('#col2').html(data);
    })
  })
+ 
  //Поиск
- $('#col2').on('click', '#gs_search', function() {
+$('#col2').on('click', '#gs_search', function() {
  var search=$('#gs_search_text').val()
  if (search!=='') {
   $.get("sprav/general_service.php", {page: "spravochnik", db:"gs",action:"search", search: search}, function (data) {
@@ -139,8 +135,9 @@ $('#col2').on('click', '#gs_new', function() {
    })
    }
  })
+ 
  //Сохранение отредактированной записи
- $('#col2').on('click', '#gs_edit_save', function() {
+$('#col2').on('click', '#gs_edit_save', function() {
  var id_gs=$('#id_gs').val()
  var name_gs=$('#name_gs').val()
  if (name_gs!=='') {
@@ -149,8 +146,9 @@ $('#col2').on('click', '#gs_new', function() {
    })
    } 
    })
+ 
  //Сохранение новой записи
- $('#col2').on('click', '#gs_new_save', function() {
+$('#col2').on('click', '#gs_new_save', function() {
  var name_gs=$('#name_gs').val()
  if (name_gs!=='') {
   $.get("sprav/general_service.php", {page: "spravochnik", db:"gs",action:"new.save", name_gs:name_gs}, function (data) {
@@ -158,9 +156,9 @@ $('#col2').on('click', '#gs_new', function() {
    })
    }   
  })
+ 
  //Удаление записи
- $('#col2').on('click', '#gs_del_data', function() {
- //var id_gs=$('#id_gs').val()
+$('#col2').on('click', '#gs_del_data', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
    $.get("sprav/general_service.php", {page: "spravochnik", db:"gs",action:"del.data", check:chdel}, function (data) {
@@ -169,12 +167,11 @@ $('#col2').on('click', '#gs_new', function() {
    }   
  })
 
-
 //---------------------------------------------------------------------------
-//Функции для справочника Постащики услуг
 
+//Функции для справочника Постащики услуг
 //Поиск
- $('#col2').on('click', '#company_search', function() {
+$('#col2').on('click', '#company_search', function() {
  var search=$('#company_search_text').val()
  if (search!=='') {
   $.get("sprav/company.php", {page: "spravochnik", db:"company",action:"search", search: search}, function (data) {
@@ -186,6 +183,7 @@ $('#col2').on('click', '#gs_new', function() {
    })
    }
  })
+ 
  //Создание формы Новая запись
 $('#col2').on('click', '#com_new', function() {
 	$.get("sprav/company.php", {page: "spravochnik", db:"company",action:"new"}, function (data) {
@@ -195,6 +193,7 @@ $('#col2').on('click', '#com_new', function() {
 		$('#col2 #ogrn').mask("99 99 99 99 99 999");
 	})
 })
+ 
  //Создание формы Редактирование записи
 $('#col2').on('click', '#com_edit', function() {
 	var chdel = $('input[name=check]:radio:checked').val()
@@ -207,8 +206,9 @@ $('#col2').on('click', '#com_edit', function() {
 		})
 	}
 })
+ 
  //Создание формы Удалить запись
-   $('#col2').on('click', '#com_del', function() {
+$('#col2').on('click', '#com_del', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
   $.get("sprav/company.php", {page: "spravochnik", db:"company",action:"del",check: chdel }, function (data) {
@@ -271,9 +271,8 @@ $('#col2').on('change', '#ogrn', function() {
 })
 //--- Валидация формы (конец)
 
-
  //Сохранение редактированной записи
-    $('#col2').on('click', '#com_edit_data', function() {
+$('#col2').on('click', '#com_edit_data', function() {
      var chdel = $('input[name=check]:radio:checked').val()
      var name_company=$('#name_company').val()
      var surname_accountant=$('#surname_accountant').val()
@@ -286,6 +285,7 @@ $('#col2').on('change', '#ogrn', function() {
    $('#col2').html(data);
    })
  })
+ 
  //Удаление записи
  $('#col2').on('click', '#com_del_data', function() {
  var chdel = $('input[name=check]:radio:checked').val()
@@ -295,16 +295,19 @@ $('#col2').on('change', '#ogrn', function() {
    })
    }   
  }) 
+
 //---------------------------------------------------------------------------
+
 //Функции для справочника Тип собственности
-//Отмена
- $('#col2').on('click', '#dom_cancel', function() {
+//Тип собственности->Отмена
+$('#col2').on('click', '#dom_cancel', function() {
   $.get("sprav/domain.php", {page: "spravochnik", db:"domain",action:"cancel"}, function (data) {
    $('#col2').html(data);
    })
  })
-//Поиск
-  $('#col2').on('click', '#domain_search', function() {
+
+//Тип собственности->Поиск
+$('#col2').on('click', '#domain_search', function() {
  var search=$('#domain_search_text').val()
  if (search!=='') {
   $.get("sprav/domain.php", {page: "spravochnik", db:"domain",action:"search", search: search}, function (data) {
@@ -316,14 +319,16 @@ $('#col2').on('change', '#ogrn', function() {
    })
    }
  })
- //Создание формы Новая запись
-  $('#col2').on('click', '#dom_new', function() {
+ 
+//Тип собственности->Создание формы Новая запись
+$('#col2').on('click', '#dom_new', function() {
   $.get("sprav/domain.php", {page: "spravochnik", db:"domain",action:"new"}, function (data) {
    $('#col2').html(data);
    })
  })
- //Создание формы Редактирование записи
-   $('#col2').on('click', '#dom_edit', function() {
+ 
+//Тип собственности->Создание формы Редактирование записи
+$('#col2').on('click', '#dom_edit', function() {
    var chdel = $('input[name=check]:radio:checked').val()
    if (chdel!== undefined) {
   $.get("sprav/domain.php", {page: "spravochnik", db:"domain",action:"edit", check:chdel}, function (data) {
@@ -331,8 +336,9 @@ $('#col2').on('change', '#ogrn', function() {
    })
    }
  })
- //Создание формы Удалить запись
-   $('#col2').on('click', '#dom_del', function() {
+ 
+//Тип собственности->Создание формы Удалить запись
+$('#col2').on('click', '#dom_del', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
   $.get("sprav/domain.php", {page: "spravochnik", db:"domain",action:"del",check: chdel }, function (data) {
@@ -340,23 +346,26 @@ $('#col2').on('change', '#ogrn', function() {
    })
    }
  })
-  //Сохранение новой записи
-   $('#col2').on('click', '#dom_new_data', function() {
+  
+//Тип собственности->Сохранение новой записи
+$('#col2').on('click', '#dom_new_data', function() {
      var name_domain=$('#name_domain').val()
    $.get("sprav/domain.php", {page: "spravochnik", db:"domain",action:"dom_new_data",name_domain:name_domain}, function (data) {
    $('#col2').html(data);
    })
  })
- //Сохранение редактированной записи
-    $('#col2').on('click', '#dom_edit_data', function() {
+ 
+//Тип собственности->Сохранение редактированной записи
+$('#col2').on('click', '#dom_edit_data', function() {
      var chdel = $('input[name=check]:radio:checked').val()
      var name_domain=$('#name_domain').val()
   $.get("sprav/domain.php", {page: "spravochnik", db:"domain",action:"dom_edit_data",name_domain:name_domain,check: chdel}, function (data) {
    $('#col2').html(data);
    })
  })
- //Удаление записи
- $('#col2').on('click', '#dom_del_data', function() {
+ 
+//Тип собственности->Удаление записи
+$('#col2').on('click', '#dom_del_data', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
    $.get("sprav/domain.php", {page: "spravochnik", db:"domain",action:"dom_del_data", check:chdel}, function (data) {
@@ -364,16 +373,19 @@ $('#col2').on('change', '#ogrn', function() {
    })
    }  
    })
+
 //---------------------------------------------------------------------------
+
 //Функции для справочника Жилфонд
-//Отмена
- $('#col2').on('click', '#adr_cancel', function() {
+//Жилфонд->Отмена
+$('#col2').on('click', '#adr_cancel', function() {
   $.get("sprav/adress.php", {page: "spravochnik", db:"adress",action:"cancel"}, function (data) {
    $('#col2').html(data);
    })
  })
-//Поиск
-  $('#col2').on('click', '#adr_search', function() {
+
+//Жилфонд->Поиск
+$('#col2').on('click', '#adr_search', function() {
  var search=$('#adr_search_text').val()
  if (search!=='') {
   $.get("sprav/adress.php", {page: "spravochnik", db:"adress",action:"search", search: search}, function (data) {
@@ -385,14 +397,16 @@ $('#col2').on('change', '#ogrn', function() {
    })
    }
  })
- //Создание формы Новая запись
-  $('#col2').on('click', '#adr_new', function() {
+
+//Жилфонд->Создание формы Новая запись
+$('#col2').on('click', '#adr_new', function() {
   $.get("sprav/adress.php", {page: "spravochnik", db:"adress",action:"new"}, function (data) {
    $('#col2').html(data);
    })
  })
- //Создание формы Редактирование записи
-   $('#col2').on('click', '#adr_edit', function() {
+
+//Жилфонд->Создание формы Редактирование записи
+$('#col2').on('click', '#adr_edit', function() {
    var chdel = $('input[name=check]:radio:checked').val()
    if (chdel!== undefined) {
   $.get("sprav/adress.php", {page: "spravochnik", db:"adress",action:"edit", check:chdel}, function (data) {
@@ -400,8 +414,9 @@ $('#col2').on('change', '#ogrn', function() {
    })
    }
  })
- //Создание формы Удалить запись
-   $('#col2').on('click', '#adr_del', function() {
+
+//Жилфонд->Создание формы Удалить запись
+$('#col2').on('click', '#adr_del', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
   $.get("sprav/adress.php", {page: "spravochnik", db:"adress",action:"del",check: chdel }, function (data) {
@@ -409,8 +424,9 @@ $('#col2').on('change', '#ogrn', function() {
    })
    }
  })
-  //Сохранение новой записи
-   $('#col2').on('click', '#adr_new_data', function() {
+
+//Жилфонд->Сохранение новой записи
+$('#col2').on('click', '#adr_new_data', function() {
     // var name_adress=$('#name_adress').val()
     //var id_house =$('#id_house').val()
     var adress =$('#adress').val()
@@ -426,8 +442,9 @@ square:square, counter:counter}, function (data) {
    $('#col2').html(data);
    })
  })
- //Сохранение редактированной записи
-    $('#col2').on('click', '#adr_edit_data', function() {
+
+//Жилфонд->Сохранение редактированной записи
+$('#col2').on('click', '#adr_edit_data', function() {
     var adress =$('#adress').val()
     var full_adress =$('#full_adress').val()
     var quality_quarters =$('#quality_quarters').val()
@@ -441,8 +458,9 @@ square:square, counter:counter, check:chdel}, function (data) {
    $('#col2').html(data);
    })
  })
- //Удаление записи
- $('#col2').on('click', '#adr_del_data', function() {
+ 
+//Жилфонд->Удаление записи
+$('#col2').on('click', '#adr_del_data', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
    $.get("sprav/adress.php", {page: "spravochnik", db:"adress",action:"adr_del_data", check:chdel}, function (data) {
@@ -450,16 +468,19 @@ square:square, counter:counter, check:chdel}, function (data) {
    })
    }  
    })
-   //--------------------------------------------------------------------------------------------
-   //Функции для справочника Услуги дома
-//Отмена
- $('#col2').on('click', '#hs_cancel', function() {
+
+//--------------------------------------------------------------------------------------------
+
+//Функции для справочника Услуги дома
+//Услуги дома->Отмена
+$('#col2').on('click', '#hs_cancel', function() {
   $.get("sprav/hs.php", {page: "spravochnik", db:"hs",action:"cancel"}, function (data) {
    $('#col2').html(data);
    })
  })
-//Поиск
-  $('#col2').on('click', '#hs_search', function() {
+
+//Услуги дома->Поиск
+$('#col2').on('click', '#hs_search', function() {
  var search=$('#hs_search_text').val()
  if (search!=='') {
   $.get("sprav/hs.php", {page: "spravochnik", db:"hs",action:"search", search: search}, function (data) {
@@ -471,14 +492,16 @@ square:square, counter:counter, check:chdel}, function (data) {
    })
    }
  })
-  //Создание формы Новая запись
-  $('#col2').on('click', '#hs_new', function() {
+  
+//Услуги дома->Создание формы Новая запись
+$('#col2').on('click', '#hs_new', function() {
   $.get("sprav/hs.php", {page: "spravochnik", db:"hs",action:"new"}, function (data) {
    $('#col2').html(data);
    })
  })
- //Создание формы Редактирование записи
-   $('#col2').on('click', '#hs_edit', function() {
+ 
+//Услуги дома->Создание формы Редактирование записи
+$('#col2').on('click', '#hs_edit', function() {
    var chdel = $('input[name=check]:radio:checked').val()
    if (chdel!== undefined) {
   $.get("sprav/hs.php", {page: "spravochnik", db:"hs",action:"edit", check:chdel}, function (data) {
@@ -486,8 +509,9 @@ square:square, counter:counter, check:chdel}, function (data) {
    })
    }
  })
- //Создание формы Удалить запись
-   $('#col2').on('click', '#hs_del', function() {
+ 
+//Услуги дома->Создание формы Удалить запись
+$('#col2').on('click', '#hs_del', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
   $.get("sprav/hs.php", {page: "spravochnik", db:"hs",action:"del",check: chdel }, function (data) {
@@ -495,8 +519,9 @@ square:square, counter:counter, check:chdel}, function (data) {
    })
    }
  })
- //Сохранение новой записи
-   $('#col2').on('click', '#hs_new_data', function() {
+ 
+//Услуги дома->Сохранение новой записи
+$('#col2').on('click', '#hs_new_data', function() {
     var id_service =$('#id_service').val()
     var id_house =$('#id_house').val()
     var counter = $('#hs_new_counter option:selected').val()
@@ -519,21 +544,33 @@ square:square, counter:counter, check:chdel}, function (data) {
    
    })
 
- //Сохранение отредактированной записи
-   $('#col2').on('click', '#hs_edit_data', function() {
+//Услуги дома->Сохранение отредактированной записи
+$('#col2').on('click', '#hs_edit_data', function() {
     var id_service =$('#id_service').val()
     var id_house =$('#id_house').val()
     var counter = $('#hs_edit_counter option:selected').val()
     var chdel = $('input[name=check]:radio:checked').val()
- if (chdel!== undefined) {
-   $.get("sprav/hs.php", {page: "spravochnik", db:"hs",action:"hs_edit_data",id_house :id_house,
-id_service:id_service, check:chdel, counter:counter}, function (data) {
-   $('#col2').html(data);
-   })
+	if (chdel!== undefined) {
+		if (counter==0) {
+			$.get("sprav/hs.php", {page: "spravochnik", db:"hs",action:"hs_edit_data",id_house :id_house,
+			id_service:id_service, counter:counter,check:chdel}, function (data) {
+			$('#col2').html(data);
+			})
+		} 
+    if (counter==1) {
+		var counter_direct= $('#hs_counter_direct').val()
+		var counter_return= $('#hs_counter_return').val()
+		$.get("sprav/hs.php", {page: "spravochnik", db:"hs",action:"hs_edit_data",id_house :id_house,
+		id_service:id_service, counter:counter, hs_counter_direct:counter_direct, hs_counter_return:counter_return}, 
+		function (data) {
+		$('#col2').html(data);
+		})
+    }
    }
- })  
- //Удаление записи    
-  $('#col2').on('click', '#hs_del_data', function() {
+})  
+ 
+//Услуги дома->Удаление записи    
+$('#col2').on('click', '#hs_del_data', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
    $.get("sprav/hs.php", {page: "spravochnik", db:"hs",action:"hs_del_data", check:chdel}, function (data) {
@@ -541,10 +578,42 @@ id_service:id_service, check:chdel, counter:counter}, function (data) {
    })
    }  
    })
-  //------------------------------------------------------------------
+
+//Услуги дома->Новая запись->Установлен ли счетчик	
+$('#col2').on('change', '#hs_new_counter', function() {
+   var hs_counter=$('#hs_new_counter option:selected').val()
+    $.post('application.php', {hs_counter:hs_counter}, function(data) {
+              $('#div_counter').html(data.result)
+      }, "json")
+  })
+  
+//Услуги дома->Редактировать запись->Если счетчик установлен 
+$('#col2').on('change', '#hs_edit_counter', function() {
+   var id_sfh = $('input[name=check]:radio:checked').val()
+   var hs_counter=$('#hs_edit_counter option:selected').val()
+    $.post('application.php', {hs_edit_counter:hs_counter,id_sfh:id_sfh}, function(data) {
+              $('#div_counter').html(data.result)
+      }, "json")
+  })
+  
+//Услуги дома->Добавление счетчика к услуге дома
+$('#col2').on('click', '#hs_counter_add', function() {
+	var id_sfh = $('input[name=check]:radio:checked').val()
+	$.post('application.php', {ch:'add',id_sfh:id_sfh}, function(data) {
+              $('#div_counter_hs').html(data.result)
+    }, "json")
+  })
+
+//Услуги дома->Отмена добавления счетчика к услуге дома  
+$('#col2').on('click', '#hs_counter_cancel', function() {
+                 $('#div_counter_hs').html('')
+  })
+
+//------------------------------------------------------------------
+
 //Функции для справочника Квартиросъемщик
- //Поиск
-  $('#col2').on('click', '#tenant_search', function() {
+//Квартиросъемщик->Поиск
+$('#col2').on('click', '#tenant_search', function() {
  var search=$('#tenant_search_text').val()
  if (search!=='') {
   $.get("sprav/tenant.php", {page: "spravochnik", db:"tenant",action:"search", search: search}, function (data) {
@@ -556,20 +625,23 @@ id_service:id_service, check:chdel, counter:counter}, function (data) {
    })
    }
  })
- //Отмена
- $('#col2').on('click', '#tenant_cancel', function() {
+
+//Квартиросъемщик->Отмена
+$('#col2').on('click', '#tenant_cancel', function() {
   $.get("sprav/tenant.php", {page: "spravochnik", db:"tenant",action:"cancel"}, function (data) {
    $('#col2').html(data);
    })
  })
- //Создание формы Новая запись
-  $('#col2').on('click', '#ten_new', function() {
+
+//Квартиросъемщик->Создание формы Новая запись
+$('#col2').on('click', '#ten_new', function() {
   $.get("sprav/tenant.php", {page: "spravochnik", db:"tenant",action:"new"}, function (data) {
    $('#col2').html(data);
    })
  })
-  //Создание формы Редактирование записи
-   $('#col2').on('click', '#ten_edit', function() {
+
+//Квартиросъемщик->Создание формы Редактирование записи
+$('#col2').on('click', '#ten_edit', function() {
    var chdel = $('input[name=check]:radio:checked').val()
    if (chdel!== undefined) {
   $.get("sprav/tenant.php", {page: "spravochnik", db:"tenant",action:"edit", check:chdel}, function (data) {
@@ -577,8 +649,9 @@ id_service:id_service, check:chdel, counter:counter}, function (data) {
    })
    }
  })
-   //Создание формы Удаление записи
-   $('#col2').on('click', '#ten_del', function() {
+
+//Квартиросъемщик->Создание формы Удаление записи
+$('#col2').on('click', '#ten_del', function() {
    var chdel = $('input[name=check]:radio:checked').val()
    if (chdel!== undefined) {
   $.get("sprav/tenant.php", {page: "spravochnik", db:"tenant",action:"del", check:chdel}, function (data) {
@@ -586,8 +659,9 @@ id_service:id_service, check:chdel, counter:counter}, function (data) {
    })
    }
  })
-   //Сохранение новой записи
-   $('#col2').on('click', '#ten_new_data', function() {
+
+//Квартиросъемщик->Сохранение новой записи
+$('#col2').on('click', '#ten_new_data', function() {
   var req = $('[data-form*=requered]').val();
   if (req == '') {
   alert ('Пожалуйста, заполните все поля')
@@ -616,8 +690,8 @@ living:living}, function (data) {
    }
  })
  
- //Редактирование записи
-   $('#col2').on('click', '#ten_edit_data', function() {
+//Квартиросъемщик->Редактирование записи
+$('#col2').on('click', '#ten_edit_data', function() {
   var req = $('[data-form*=requered]').val();
   if (req == '') {
   alert ('Пожалуйста, заполните все поля')
@@ -646,8 +720,9 @@ living:living}, function (data) {
    })
    }
  })
-   //Удаление записи
- $('#col2').on('click', '#ten_del_data', function() {
+   
+//Квартиросъемщик->Удаление записи
+$('#col2').on('click', '#ten_del_data', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
    $.get("sprav/tenant.php", {page: "spravochnik", db:"tenant",action:"ten_del_data", check:chdel}, function (data) {
@@ -655,10 +730,12 @@ living:living}, function (data) {
    })
    }  
    })
- //--------------------------------------------------------------------------------------------
- //Функции для справочника Карточка квартиросъемщика
-  //Формы заполнение поле № квартиры
-  $('#col2').on('keyup', '#tc_number_flat', function() {
+
+//--------------------------------------------------------------------------------------------
+ 
+//Функции для справочника Карточка квартиросъемщика
+//Карточка квартиросъемщика->Формы заполнение поле № квартиры
+$('#col2').on('keyup', '#tc_number_flat', function() {
    			var id_house = $('#tc_id_house option:selected').val();
 			var number_flat = $(this).val();
       var id_service = $('#tc_id_service option:selected').val();
@@ -670,8 +747,9 @@ living:living}, function (data) {
               $('#tc_amount').val(data.amount)
           }, "json")
       })
-      //Формы заполнение поле № дома
-   $('#col2').on('change', '#tc_id_house', function() {
+
+//Карточка квартиросъемщика->Формы заполнение поле № дома
+$('#col2').on('change', '#tc_id_house', function() {
     			var id_house = $(this).val();
 			var id_service = $('#tc_id_service option:selected').val();
 			var number_flat = $('#tc_number_flat').val();		
@@ -683,8 +761,9 @@ living:living}, function (data) {
               $('#tc_amount').val(data.amount)
           }, "json")
 			}) 
-      //Формы заполнение поле № услуги 
- $('#col2').on('change', '#tc_id_service', function() {
+
+//Карточка квартиросъемщика->Формы заполнение поле № услуги 
+$('#col2').on('change', '#tc_id_service', function() {
  			var id_service = $(this).val();
 			var id_house = $('#tc_id_house option:selected').val();
 			var number_flat = $('#tc_number_flat').val();		
@@ -693,8 +772,8 @@ living:living}, function (data) {
       }, "json")
     })  
     
- //Поиск
-  $('#col2').on('click', '#tc_search', function() {
+//Карточка квартиросъемщика->Поиск
+$('#col2').on('click', '#tc_search', function() {
  var tc_search_kv=$('#tc_search_kv').val() 
  var tc_search_house=$('#tc_search_house option:selected').val()
  if (tc_search_kv!=='') {
@@ -707,20 +786,23 @@ living:living}, function (data) {
    })
    }
  })
-  //Отмена
- $('#col2').on('click', '#tc_cancel', function() {
+
+//Карточка квартиросъемщика->Отмена
+$('#col2').on('click', '#tc_cancel', function() {
   $.get("sprav/tc.php", {page: "spravochnik", db:"tc",action:"cancel"}, function (data) {
    $('#col2').html(data);
    })
  })
- //Создание формы Новая запись
-  $('#col2').on('click', '#tc_new', function() {
+ 
+//Карточка квартиросъемщика->Создание формы Новая запись
+$('#col2').on('click', '#tc_new', function() {
   $.get("sprav/tc.php", {page: "spravochnik", db:"tc",action:"new"}, function (data) {
    $('#col2').html(data);
    })
  })
- //Создание формы Редактирование записи
-  $('#col2').on('click', '#tc_edit', function() {
+
+//Карточка квартиросъемщика->Создание формы Редактирование записи
+$('#col2').on('click', '#tc_edit', function() {
     var chdel = $('input[name=check]:radio:checked').val()
    if (chdel!== undefined) {
   $.get("sprav/tc.php", {page: "spravochnik", db:"tc",action:"edit", check:chdel}, function (data) {
@@ -728,8 +810,9 @@ living:living}, function (data) {
    })
    }
  }) 
- //Форма новая счетчик
-  $('#col2').on('change', '#tc_new_counter', function() {
+
+//Карточка квартиросъемщика->Форма новая счетчик
+$('#col2').on('change', '#tc_new_counter', function() {
  			var id_counter = $(this).val();
       var id_service = $('#tc_id_service option:selected').val();
 			var id_house = $('#tc_id_house option:selected').val();
@@ -742,16 +825,18 @@ living:living}, function (data) {
       }, "json")
       }
      })  
-      //Форма редактирование услуга
-  $('#col2').on('change', '#tc_edit_service', function() {
+
+//Карточка квартиросъемщика->Форма редактирование услуга
+$('#col2').on('change', '#tc_edit_service', function() {
  			var id_service = $(this).val();
 			var id_card = $('input[name=check]:radio:checked').val()
       $.post('application.php', {tc_edit_id_card: id_card, tc_edit_id_service:id_service}, function(data) {
               $('#tc_edit_amount').val(data.amount)
       }, "json")
     }) 
-  //Форма редактирование счетчик
-  $('#col2').on('change', '#tc_edit_counter', function() {
+
+//Карточка квартиросъемщика->Форма редактирование счетчик
+$('#col2').on('change', '#tc_edit_counter', function() {
  			var id_counter = $(this).val();
       var id_service= $('#tc_edit_service option:selected').val();
       var id_card = $('input[name=check]:radio:checked').val()
@@ -763,8 +848,9 @@ living:living}, function (data) {
       }, "json")
       }
      }) 
-   //Создание формы удалить запись
-  $('#col2').on('click', '#tc_del', function() {
+
+//Карточка квартиросъемщика->Создание формы удалить запись
+$('#col2').on('click', '#tc_del', function() {
    var chdel = $('input[name=check]:radio:checked').val()
    if (chdel!== undefined) {
   $.get("sprav/tc.php", {page: "spravochnik", db:"tc",action:"del", check:chdel}, function (data) {
@@ -772,7 +858,9 @@ living:living}, function (data) {
    })
    }
  })
-  $('#col2').on('click', '#tc_del_data', function() {
+ 
+//Карточка квартиросъемщика->Удаление записи 
+$('#col2').on('click', '#tc_del_data', function() {
  var chdel = $('input[name=check]:radio:checked').val()
  if (chdel!== undefined) {
    $.get("sprav/tc.php", {page: "spravochnik", db:"tc",action:"tc_del_data", check:chdel}, function (data) {
@@ -780,8 +868,9 @@ living:living}, function (data) {
    })
    }  
    })  
-  //Редактирование записи
-   $('#col2').on('click', '#tc_edit_data', function() {
+
+//Карточка квартиросъемщика->Редактирование записи
+$('#col2').on('click', '#tc_edit_data', function() {
   var req = $('[data-form*=requered]').val();
   if (req == '') {
   alert ('Пожалуйста, заполните все поля')
@@ -799,8 +888,9 @@ living:living}, function (data) {
    })
    }
  })  
-  //Сохранение новой записи
-    $('#col2').on('click', '#tc_new_data', function() {
+
+//Карточка квартиросъемщика->Сохранение новой записи
+$('#col2').on('click', '#tc_new_data', function() {
   var req = $('[data-form*=requered]').val();
   if (req == '') {
   alert ('Пожалуйста, заполните все поля')
@@ -816,10 +906,12 @@ living:living}, function (data) {
    })
    }
  })
-  //--------------------------------------------------------------------------------------------
- //Функции для справочника Карточка квартиросъемщика
-  //Поиск
-  $('#col2').on('click', '#lef_search', function() {
+
+//--------------------------------------------------------------------------------------------
+
+//Функции для справочника Остатки
+//Остатки->Поиск
+$('#col2').on('click', '#lef_search', function() {
  var lef_search_kv=$('#lef_search_kv').val()
  var lef_search_house=$('#lef_search_house option:selected').val()
  if (lef_search_kv!=='') {
@@ -832,20 +924,23 @@ living:living}, function (data) {
    })
    }
  })
-  //Отмена
- $('#col2').on('click', '#lef_cancel', function() {
+
+//Остатки->Отмена
+$('#col2').on('click', '#lef_cancel', function() {
   $.get("sprav/leftover.php", {page: "spravochnik", db:"leftover",action:"cancel"}, function (data) {
    $('#col2').html(data);
    })
  })
-  //Создание формы Новая запись
-  $('#col2').on('click', '#lef_new', function() {
+
+//Остатки->Создание формы Новая запись
+$('#col2').on('click', '#lef_new', function() {
   $.get("sprav/leftover.php", {page: "spravochnik", db:"leftover",action:"new"}, function (data) {
    $('#col2').html(data);
    })
  })
-  //Создание формы Редактирование записи
-  $('#col2').on('click', '#lef_edit', function() {
+ 
+//Остатки->Создание формы Редактирование записи
+$('#col2').on('click', '#lef_edit', function() {
     var chdel = $('input[name=check]:radio:checked').val()
    if (chdel!== undefined) {
   $.get("sprav/leftover.php", {page: "spravochnik", db:"leftover",action:"edit", check:chdel}, function (data) {
@@ -853,8 +948,9 @@ living:living}, function (data) {
    })
    }
  })
-  //Формы заполнение поле № квартиры
-  $('#col2').on('keyup', '#lef_number_flat', function() {
+  
+//Остатки->Формы заполнение поле № квартиры
+$('#col2').on('keyup', '#lef_number_flat', function() {
    			var id_house = $('#lef_id_house option:selected').val();
 			var number_flat = $(this).val();
       var id_service = $('#lef_id_service option:selected').val();
@@ -865,8 +961,9 @@ living:living}, function (data) {
               $('#lef_S').val(data.s)
           }, "json")
       })
-      //Формы заполнение поле № дома
-   $('#col2').on('change', '#lef_id_house', function() {
+
+//Остатки->Формы заполнение поле № дома
+$('#col2').on('change', '#lef_id_house', function() {
     			var id_house = $(this).val();
 			var id_service = $('#lef_id_service option:selected').val();
 			var number_flat = $('#lef_number_flat').val();
@@ -878,8 +975,8 @@ living:living}, function (data) {
           }, "json")
 			})
       
-  //Создание формы удалить запись
-  $('#col2').on('click', '#lef_del', function() {
+//Остатки->Создание формы удалить запись
+$('#col2').on('click', '#lef_del', function() {
    var chdel = $('input[name=check]:radio:checked').val()
    if (chdel!== undefined) {
   $.get("sprav/leftover.php", {page: "spravochnik", db:"leftover",action:"del", check:chdel}, function (data) {
@@ -887,8 +984,9 @@ living:living}, function (data) {
    })
    }
  })
-   //Сохранение новой записи
-    $('#col2').on('click', '#lef_new_data', function() {
+
+//Остатки->Сохранение новой записи
+$('#col2').on('click', '#lef_new_data', function() {
   var req = $('[data-form*=requered]').val();
   if (req == '') {
   alert ('Пожалуйста, заполните все поля')
@@ -904,8 +1002,9 @@ living:living}, function (data) {
    })
    }
  })
-    //Сохранение отредактированной записи
-    $('#col2').on('click', '#lef_edit_data', function() {
+
+//Остатки->Сохранение отредактированной записи
+$('#col2').on('click', '#lef_edit_data', function() {
   var req = $('[data-form*=requered]').val();
   if (req == '') {
   alert ('Пожалуйста, заполните все поля')
@@ -922,18 +1021,21 @@ living:living}, function (data) {
    })
    }
  })
-     //Удаление записи
-    $('#col2').on('click', '#lef_del_data', function() {
+
+//Остатки->Удаление записи
+$('#col2').on('click', '#lef_del_data', function() {
       var chdel = $('input[name=check]:radio:checked').val()
    $.get("sprav/leftover.php", {page: "spravochnik", db:"leftover",action:"lef_del_data",
    lef_del_id_leftover:chdel}, function (data) {
    $('#col2').html(data);
    })
  })
+
 //-----------------------------------------------------------------------------------------
+
 //Начисление-------------------------------------------------------------------------------
-//Кнопка Начислить
-      $('#col2').on('click', '#ai_commit', function() {
+//Начисление->Кнопка Начислить
+$('#col2').on('click', '#ai_commit', function() {
  			 var month=$('#ai_month option:selected').val()
        var month_text=$('#ai_month option:selected').text() 
        var year = $('#ai_year').val()
@@ -941,12 +1043,17 @@ living:living}, function (data) {
               $('#ai_result').html(data.result)
       }, "json")
     }) 
-     //enter
-      $('#col2').on('submit', '#ai', function(e) {
+     
+//Начисление->enter
+$('#col2').on('submit', '#ai', function(e) {
         e.preventDefault()
       })
- //ННааччииссллееннииее по счетчику (первоначальный расчет)
-    $('#col2').on('click', '#cc_search', function() {
+
+//-----------------------------------------------------------------------------------------	  
+	  
+//Начисление по счетчику ------------------------------------------------------------------	  
+//Начисление по счетчику->(первоначальный расчет)
+$('#col2').on('click', '#cc_search', function() {
 		 var cc_adress=$('#cc_search_house option:selected').val()
        var cc_number_flat=$('#cc_search_kv').val() 
        //alert('ddd')           
@@ -954,34 +1061,36 @@ living:living}, function (data) {
               $('#counter_div').html(data.result)
       }, "json")
     })
-  
-	$('#col2').on('click', '#cc_date', function() {
+
+//Начисление по счетчику->Календарь	для начисления по счетчику
+$('#col2').on('click', '#cc_date', function() {
 		$(this).datepicker({
 			format: 'yyyy-mm-dd',
 			weekStart: 1
 		}).focus();
 	})
-	$('#col2').on('click', '#cp_date', function() {
+
+//-----------------------------------------------------------------------------------------	  
+	  
+//Начисление по ОДПУ ----------------------------------------------------------------------
+//Начисление по ОДПУ->Календарь	для начисления по ОДПУ
+$('#col2').on('click', '#cp_date', function() {
 		$(this).datepicker({
 			format: 'yyyy-mm-dd',
 			weekStart: 1
 		}).focus();
 	})
-  $('#col2').on('change', '#hs_new_counter', function() {
-   var hs_counter=$('#hs_new_counter option:selected').val()
-    $.post('application.php', {hs_counter:hs_counter}, function(data) {
-              $('#div_counter').html(data.result)
-      }, "json")
-  })
-  
-  $('#col2').on('change', '#cp_search_house', function() {
+
+//Начисление по ОДПУ->Адрес
+$('#col2').on('change', '#cp_search_house', function() {
 	var house=$('#cp_search_house option:selected').val()
 	$.post('application.php', {cp:'cp_serv',cp_house:house}, function (data) {
 		$('#cp_serv').html(data.result);
 	}, "json")
-  //alert ($('#cp_search_house option:selected').val())
   })
-    $('#col2').on('change', '#cp_search_service', function() {
+
+//Начисление по ОДПУ->Услуга  
+$('#col2').on('change', '#cp_search_service', function() {
 	var date = $('#cp_date').val()
 	var house=$('#cp_search_house option:selected').val()
 	var service=$('#cp_search_service option:selected').val()
@@ -990,8 +1099,9 @@ living:living}, function (data) {
 	}, "json")
   //alert ($('#cp_search_house option:selected').val())
   })
-  
-  $('#col2').on('keyup', '#max_counter', function() {
+
+//Начисление по ОДПУ->Конечные йпоказания счетчика  
+$('#col2').on('keyup', '#max_counter', function() {
 	var min = $('#min_counter').val()
 	var max = $('#max_counter').val()
 	var norma=$('#cp_norma').val()
@@ -1003,7 +1113,9 @@ living:living}, function (data) {
 		$('#cp_v').val(data.result);
 	}, "json")
   })
-  $('#col2').on('click', '#cp_rasch', function() {
+
+//Начисление по ОДПУ->Рассчитать  
+$('#col2').on('click', '#cp_rasch', function() {
 	var odn=$('#odn').val();
 	var house=$('#cp_search_house option:selected').val()
 	var service=$('#cp_search_service option:selected').val()
@@ -1015,7 +1127,7 @@ living:living}, function (data) {
 		}, "json")
 	}
   })
- //-----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------------------
 
 })

@@ -157,8 +157,8 @@ $hs.= "</select><br>";
   $hs.= "<option value=0>Не установлен</option>";
   $hs.= "<option value=1 selected>Установлен</option>";
   }
-	$hs.= "</select><br>";
-
+$hs.= "</select><br>";
+$hs.= "<div id='div_counter'> </div>";
 $hs.= "<button type=\"button\" id=\"hs_edit_data\">Сохранить</button></center>"; 
 $hs.= "<button type=\"button\" id=\"hs_cancel\">Отмена</button></center>";
 $hs.= "</form>";

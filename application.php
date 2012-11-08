@@ -162,15 +162,63 @@ if (isset($_POST['tc_new_id_house']) && isset($_POST['tc_new_number_flat']) && i
     
   echo json_encode(array("result"=>$cc));   
   }
+  //Новая запись услуги дома новые счетчики
   if (isset($_POST['hs_counter'])) {
-     $result='';
-     $result.=  "<label for='hs_counter_direct'>Количество счетчиков прямой подачи:</label>";
-    $result.= "<input type='text' id='hs_counter_direct'>  <br>";
+	$result='';
+	if ($_POST['hs_counter']==1) {
+    	$result.=  "<label for='hs_counter_direct'>Количество счетчиков прямой подачи:</label>";
+		$result.= "<input type='text' id='hs_counter_direct'>  <br>";
        
-    $result.=  "<label for='hs_counter_return'>Количество счетчиков обратной подачи:</label>";
-    $result.= "<input type='text' id='hs_counter_return'>  <br>";
-    echo json_encode(array("result"=>$result));
+		$result.=  "<label for='hs_counter_return'>Количество счетчиков обратной подачи:</label>";
+		$result.= "<input type='text' id='hs_counter_return'>  <br>";
+	}
+  echo json_encode(array("result"=>$result));
   }
+  //Редактирование записи услуги дома существующие счетчики
+  if (isset($_POST['hs_edit_counter'])) {
+	$hs='';
+	if ($_POST['hs_edit_counter']==1) {
+	$q=$my->query('select * from counter_house where id_hs='.$_POST['id_sfh']);
+		$hs.= "<table border=1 cellspacing=0 cellpadding=2 width=680 px align='center'>";
+		$hs.= "<tr>";
+		$hs.= " <td> № счетчика</td>";
+		$hs.= " <td> Тип счетчика</td>";
+		$hs.= "<td></td>";
+		$hs.= " </tr>";
+		while (@$row=$q->fetch_assoc()) {
+			$hs.= " <tr>";
+			$hs.= "<td>".$row['id_counter']."</td>";
+			if ($row['counter_type']==1) {
+			$hs.= "<td>Подача</td>";
+			} else {
+			$hs.= "<td>Обратка</td>";
+			}
+			$hs.= "<td><input type='radio' name = 'check' value=".$row['id']."></td>";
+			$hs.= " </tr>";
+		}
+		$hs.= "</table> <br>";
+		$hs.= "<center><button type=\"button\" id='hs_counter_add'>Добавить</button> " ;
+		$hs.= "<button type=\"button\" id='hs_counter_del'>Удалить</button> </center><br><br>" ;
+		$hs.= "<div id='div_counter_hs'> </div>";
+	}
+  echo json_encode(array("result"=>$hs));
+  }
+  //Добавление счетчика в услуги дома
+if (isset($_POST['ch']) && $_POST['ch']=='add') {
+		$hs='';
+		$hs.=  "<label for='tc_fio'>№ счетчика:</label>";
+		$hs.= "<input type='text' id='hs_id_counter'>  <br>";
+		$hs.= "Тип счетчмка:<br>" ;
+		$hs.= "<select id='hs_type_counter' size=1>";
+		$hs.= "<option value=1>Прямая подача</option>";
+		$hs.= "<option value=2>Обратная</option>";	
+		$hs.= "</select><br>";
+		$hs.= "<center><button type=\"button\" id='hs_counter_save'>Сохранить</button> " ;
+		$hs.= "<button type=\"button\" id='hs_counter_cancel'>Отмена</button> </center><br><br>" ;
+		echo json_encode(array("result"=>$hs));
+}
+  
+  
   if (isset($_POST['cc_text'])) {
       $result=preg_split('/;/',$_POST['cc_text'],-1, PREG_SPLIT_NO_EMPTY);
       foreach ($result as &$value) {

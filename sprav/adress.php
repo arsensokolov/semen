@@ -52,7 +52,7 @@ $k=$my->query("SET NAMES utf8");
 function adr_new_data($my) {
  $proc=$my->query('insert into `house` values ("",\''.$_GET['adress'].'\',\''. 
   $_GET['full_adress'].'\',\''.$_GET['quality_quarters'].'\',\''.
-  $_GET['quantity_flat'].'\','.$_GET['square'].','.$_GET['counter'].')');
+  $_GET['quantity_flat'].'\','.$_GET['square'].')');
   unset ($_GET);
   $_GET['page']='spravochnik';
   $_GET['db']='adress';
@@ -61,7 +61,7 @@ function adr_new_data($my) {
 function adr_edit_data($my) {
  $proc=$my->query('update `house` set adress="'.$_GET['adress'].'", 
    full_adress="'.$_GET['full_adress'].'", quality_quarters="'.$_GET['quality_quarters'].'", quantity_flat='.
-   $_GET['quantity_flat'].',square='.$_GET['square'].', counter='.$_GET['counter'].' where id_house='.$_GET['check']);
+   $_GET['quantity_flat'].',square='.$_GET['square'].' where id_house='.$_GET['check']);
   unset ($_GET);
   $_GET['page']='spravochnik';
   $_GET['db']='adress';
@@ -85,11 +85,11 @@ if ($q->num_rows<>0) {
     $adress.="<br>" ;
   }
   }
-  $q=$my->query('select  *  from  `common_parts` where  house='.$_GET['check']);
-if ($q->num_rows<>0) {
-  $bool=true;
-  $adress.="У данного дома имеются показания счетчиков:";
-  }
+  // $q=$my->query('select  *  from  `common_parts` where  house='.$_GET['check']);
+// if ($q->num_rows<>0) {
+  // $bool=true;
+  // $adress.="У данного дома имеются показания счетчиков:";
+ // }
    $q=$my->query('select  *  from  `service_for_house` sfh join service s on sfh.id_service=s.id_service where  id_house='.$_GET['check']);
 if ($q->num_rows<>0) {
   $bool=true;
@@ -134,17 +134,17 @@ function adress_edit_form($my) {
   $adress.= "<label for='square'> Общая площадь: </label>";
 	$adress.= "<input type='text' id='square' value=".$row['square']."><br>";
   
-  $adress.= "<label for='counter'> Счетчик: </label>";
-  $adress.= "<select id='counter' size=1>";
-  if ($row['counter']==1) {
-  $adress.= "<option value='0'>Не установлен</option>";
-  $adress.= "<option value='1' selected=''>Установлен</option>";
-  }
-  if ($row['counter']==0) {
-  $adress.= "<option value='0' selected=''>Не установлен</option>";
-  $adress.= "<option value='1'>Установлен</option>";
-  } 
-  $adress.= "</select><br>";
+  // $adress.= "<label for='counter'> Счетчик: </label>";
+  // $adress.= "<select id='counter' size=1>";
+  // if ($row['counter']==1) {
+  // $adress.= "<option value='0'>Не установлен</option>";
+  // $adress.= "<option value='1' selected=''>Установлен</option>";
+  // }
+  // if ($row['counter']==0) {
+  // $adress.= "<option value='0' selected=''>Не установлен</option>";
+  // $adress.= "<option value='1'>Установлен</option>";
+  // } 
+  // $adress.= "</select><br>";
   $adress.= "<button type=\"button\" id=\"adr_edit_data\">Сохранить</button></center>"; 
   $adress.= "<button type=\"button\" id=\"adr_cancel\">Отмена</button></center>";
   $adress.= "</form>";
@@ -173,11 +173,11 @@ $adress.= "<label for='adress'> Адрес: </label>";
   $adress.= "<label for='square'> Общая площадь: </label>";
 	$adress.= "<input type='text' id='square' value=".$row['quantity_flat']."><br>";
   
-  $adress.= "<label for='counter'> Счетчик: </label>";
-	$adress.= "<select id='counter' size=1>";
-  $adress.= "<option value='0'>Не установлен</option>";
-  $adress.= "<option value='1'>Установлен</option>";
-  $adress.= "</select><br>";
+  // $adress.= "<label for='counter'> Счетчик: </label>";
+	// $adress.= "<select id='counter' size=1>";
+  // $adress.= "<option value='0'>Не установлен</option>";
+  // $adress.= "<option value='1'>Установлен</option>";
+  // $adress.= "</select><br>";
 
   $adress.= "<button type=\"button\" id=\"adr_new_data\">Сохранить</button></center>"; 
   $adress.= "<button type=\"button\" id=\"adr_cancel\">Отмена</button></center>";
@@ -214,7 +214,7 @@ $adress.= " <td align='center'> Полный адрес </td>";
 $adress.= " <td align='center'> Качество </td>";
 $adress.= " <td align='center'> Кол-во квартир </td>";
 $adress.= " <td align='center'> Общая площадь </td>";
-$adress.= " <td align='center'> Счетчик </td>";
+// $adress.= " <td align='center'> Счетчик </td>";
 $adress.= "<td></td>";
 $adress.= " </tr>";
  $k=1;
@@ -226,11 +226,11 @@ while (@$row=$q->fetch_assoc()) {
 	$adress.= "<td>".$row['quality_quarters']."</td>";
 	$adress.= "<td>".$row['quantity_flat']."</td>";
   $adress.= "<td>".$row['square']."</td>";
-  if ($row['counter']==1) { 
-  $adress.= "<td>Установлен</td>";
-  } else {
-  $adress.= "<td>Не установлен</td>";
-  }
+  // if ($row['counter']==1) { 
+  // $adress.= "<td>Установлен</td>";
+  // } else {
+  // $adress.= "<td>Не установлен</td>";
+  // }
    if (!isset($_GET['check'])) {
   $adress.= "<td><input type='radio' name = 'check' value=".$row['id_house']."></td>";
   } else {
@@ -250,44 +250,4 @@ $adress.= "<br>";
 $adress.= "</form>";
 return $adress;
 }
-
-#Сохранение отредактированной записи
-/*if (isset($_GET['action']) && ($_GET['action']=='edit.save')) {
-  $proc=mysql_query('update `house` set adress="'.$_GET['adress'].'", 
-   full_adress="'.$_GET['full_adress'].'", quality_quarters="'.$_GET['quality_quarters'].'", quantity_flat='.
-   $_GET['quantity_flat'].' where id_house='.$_GET['id_house']);
-   /*$adress.= 'update `house` set adress="'.$_GET['adress'].'", 
-   full_adress="'.$_GET['full_adress'].'", quality_quarters="'.$_GET['quality_quarters'].'", quantity_flat='.
-   $_GET['quantity_flat'].' where id_house='.$_GET['id_house'];  
-header("Location: index.php?page=spravochnik&db=adress");
-exit();
-}   
-#Сохранение новой записи
-if (isset($_GET['action']) && ($_GET['action']=='new.save')) {
- $q=mysql_query('select max(id_house) as max from `house`');
- @$row=mysql_fetch_assoc($q); 
- 
- /* $adress.= 'insert into `house` values ('.($row['max']+1).',\''.$_GET['adress'].'\',\''. 
-  $_GET['full_adress'].'\',\''.$_GET['quality_quarters'].'\',\''.$_GET['quantity_flat'].')'; 
-  header("Location: index.php?page=spravochnik&db=adress");
-exit;
-}
-                                                                                            */
-#Поиск
-
-
-#Редактирование выбранной записи
-/*if (isset($_GET['action']) && ($_GET['action']=='edit.show')) {
-	
-}
-
- 
-#Создание новой записи
-if (isset($_GET['action']) && ($_GET['action']=='new.show')) {
-
-	
-  $adress.= "<button type='submit'>Сохранить</button>";
-}*/
-
- 
 ?>
