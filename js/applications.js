@@ -1115,6 +1115,7 @@ $('#col2').on('change', '#cp_search_house', function() {
 		$('#cp_serv').html(data.result);
 		$('#cp_counter').html('');
 		$('#cp_count').html('');
+		$('#cp_ved').html('');
 	}, "json")
   })
 
@@ -1126,6 +1127,7 @@ $('#col2').on('change', '#cp_search_service', function() {
 	$.post('application.php', {cp:'cp_counter',cp_house:house, cp_service:service,cp_date:date}, function (data) {
 		$('#cp_counter').html(data.result);
 		$('#cp_count').html('');
+		$('#cp_ved').html('');
 	}, "json")
   })
 
@@ -1135,7 +1137,7 @@ $('#col2').on('change', '#cp_search_counter', function() {
 	var house=$('#cp_search_house option:selected').val()
 	var service=$('#cp_search_service option:selected').val()
 	var counter=$('#cp_search_counter option:selected').val()
-	$.post('application.php', {cp:'cp_data',cp_house:house, cp_service:service,cp_date:date}, function (data) {
+	$.post('application.php', {cp:'cp_data',cp_house:house, cp_service:service,cp_date:date,cp_counter:counter}, function (data) {
 		$('#cp_count').html(data.result);
 		
 	}, "json")
@@ -1154,6 +1156,18 @@ $('#col2').on('keyup', '#max_counter', function() {
 		$('#cp_v').val(data.result);
 	}, "json")
   })
+  
+  $('#col2').on('keyup', '#max_counter1', function() {
+	var min = $('#min_counter').val()
+	var max = $('#max_counter1').val()
+	min=min*(-1);
+	max=max*(-1);
+	var v= 0;
+	$.post('application.php', {cp:'cp_v',cp_max:max, cp_min:min,cp_v:v}, function (data) {
+		$('#odn').val(data.ost);
+		//$('#cp_v').val(data.result);
+	}, "json")
+  })
 
 //Начисление по ОДПУ->Рассчитать  
 $('#col2').on('click', '#cp_rasch', function() {
@@ -1169,6 +1183,19 @@ $('#col2').on('click', '#cp_rasch', function() {
 		}, "json")
 	}
   })
+
+//Начисление по ОДПУ->Сохранение данных  
+ $('#col2').on('click', '#cp_save_data', function() {
+	var mas = new Array();
+	for (i=1;i<=document.getElementById('ved_table').getElementsByTagName('tr').length-4;i=i+2) {
+		mas[i][0]=$("#col2 #ved_table tr:eq("+i+") td:eq(0)").text()
+		mas[i][1]=$("#col2 #ved_table tr:eq("+i+") td:eq(3)").text()
+		mas[i][2]=$("#col2 #ved_table tr:eq("+i+") td:eq(4)").text()	
+	}
+	$.post('application.php', {cp:'cp_save_data',cp_mas:mas}, function (data) {
+			$('#cp_ved').html(data.result);
+		}, "json")
+ })
 
 //----------------------------------------------------------------------------------------
 
