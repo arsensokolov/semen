@@ -1186,7 +1186,7 @@ $('#col2').on('click', '#cp_rasch', function() {
 
 //Начисление по ОДПУ->Сохранение данных  
  $('#col2').on('click', '#cp_save_data', function() {
-	var mas = new Array();
+	var mas = [];
 	for (i=1;i<=document.getElementById('ved_table').getElementsByTagName('tr').length-4;i=i+2) {
 		mas[i][0]=$("#col2 #ved_table tr:eq("+i+") td:eq(0)").text()
 		mas[i][1]=$("#col2 #ved_table tr:eq("+i+") td:eq(3)").text()

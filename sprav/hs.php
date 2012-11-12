@@ -140,6 +140,7 @@ function hs_edit_form($my) {
 		} else {
 			$hs.= "<option value=".$num['id_service']. " selected> ".$num['name_service']."</option>";
 		}
+		
 	}
 	$hs.= "</select><br>";
 	$hs.= "<label for='hs_edit_counter'>Установлен ли счетчик: </label>";
@@ -147,7 +148,8 @@ function hs_edit_form($my) {
 	if ($row['counter']==0) {
 		$hs.= "<option value=0 selected>Не установлен</option>";
 		$hs.= "<option value=1>Установлен</option>";
-		$hs.= "</select><br>";		
+		$hs.= "</select><br>";	
+		$hs.= "<div id='div_counter'> </div>";	
 	} else {
 		$hs.= "<option value=0>Не установлен</option>";
 		$hs.= "<option value=1 selected>Установлен</option>";
@@ -175,7 +177,7 @@ function hs_edit_form($my) {
 		$hs.= "<center><button type=\"button\" id='hs_counter_add'>Добавить</button> " ;
 		$hs.= "<button type=\"button\" id='hs_counter_del'>Удалить</button> </center><br><br>" ;
 		$hs.= "</div>";
-		$hs.= "<div id='div_counter_hs'> </div>";
+		$hs.= "<div id='div_counter'> </div>";
 	}
 
 	$hs.= "<button type=\"button\" id=\"hs_edit_data\">Сохранить</button></center>"; 
