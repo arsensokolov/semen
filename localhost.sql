@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 2.11.11.3
+-- version 3.5.1
 -- http://www.phpmyadmin.net
 --
--- Хост: localhost
--- Время создания: Окт 31 2012 г., 12:09
--- Версия сервера: 5.5.28
--- Версия PHP: 5.3.18
+-- Хост: 127.0.0.1
+-- Время создания: Ноя 12 2012 г., 09:52
+-- Версия сервера: 5.5.25
+-- Версия PHP: 5.3.13
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -5637,21 +5638,27 @@ CREATE TABLE IF NOT EXISTS `calculation_counter` (
   `counter` int(11) NOT NULL,
   `begin_count` double(8,3) DEFAULT NULL,
   `end_count` double(8,3) DEFAULT NULL,
-  `count` int(11) NOT NULL,
+  `count` double(8,3) NOT NULL,
   `amount` double(8,2) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `counter` (`counter`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=27 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=73 ;
 
 --
 -- Дамп данных таблицы `calculation_counter`
 --
 
 INSERT INTO `calculation_counter` (`id`, `date`, `counter`, `begin_count`, `end_count`, `count`, `amount`) VALUES
-(3, '2012-10-16', 16, 100.000, 101.000, 1, 100.00),
-(24, '2012-09-26', 15, 0.000, 1.000, 1, 13.10),
-(25, '2012-09-26', 18, 0.000, 1.000, 1, 87.42),
-(26, '2012-09-26', 14, 0.000, 0.000, 2, 51.96);
+(51, '2012-11-09', 25, 0.000, 31.580, 31.580, 2760.72),
+(52, '2012-11-09', 26, 0.000, 65.722, 65.722, 860.96),
+(53, '2012-11-09', 27, 0.000, 0.000, 97.302, 1406.01),
+(54, '2012-11-09', 28, 0.000, 0.000, 97.302, 1121.89),
+(67, '2012-11-09', 19, 0.000, 6.000, 6.000, 524.52),
+(68, '2012-11-09', 20, 0.000, 0.000, 0.000, 0.00),
+(69, '2012-11-09', 23, 0.000, 0.000, 0.000, 0.00),
+(70, '2012-11-09', 24, 0.000, 0.000, 0.000, 0.00),
+(71, '2012-11-09', 21, 0.000, 0.000, 6.000, 86.70),
+(72, '2012-11-09', 22, 0.000, 0.000, 6.000, 69.18);
 
 -- --------------------------------------------------------
 
@@ -5661,6 +5668,7 @@ INSERT INTO `calculation_counter` (`id`, `date`, `counter`, `begin_count`, `end_
 
 CREATE TABLE IF NOT EXISTS `calculation_parts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date_cp` date NOT NULL,
   `tenant` int(11) NOT NULL,
   `service` int(11) NOT NULL,
   `common_parts` int(11) NOT NULL,
@@ -5673,11 +5681,6 @@ CREATE TABLE IF NOT EXISTS `calculation_parts` (
   KEY `FK_cpcp1` (`common_parts`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
---
--- Дамп данных таблицы `calculation_parts`
---
-
-
 -- --------------------------------------------------------
 
 --
@@ -5686,21 +5689,15 @@ CREATE TABLE IF NOT EXISTS `calculation_parts` (
 
 CREATE TABLE IF NOT EXISTS `common_parts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `house` int(11) NOT NULL,
-  `service` int(11) NOT NULL,
+  `date_cp` date NOT NULL,
+  `id_ch` int(11) NOT NULL,
   `begin_count` int(11) NOT NULL,
   `end_count` int(11) NOT NULL,
   `count` int(11) NOT NULL,
   `node` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `FK_scp` (`service`),
-  KEY `FK_hcp` (`house`)
+  UNIQUE KEY `id_ch` (`id_ch`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Дамп данных таблицы `common_parts`
---
-
 
 -- --------------------------------------------------------
 
@@ -5717,7 +5714,7 @@ CREATE TABLE IF NOT EXISTS `company` (
   `adress` text NOT NULL,
   `ogrn` bigint(13) NOT NULL,
   PRIMARY KEY (`id_company`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
 
 --
 -- Дамп данных таблицы `company`
@@ -5739,7 +5736,7 @@ CREATE TABLE IF NOT EXISTS `counter` (
   `id_card` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `id_card` (`id_card`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=25 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=29 ;
 
 --
 -- Дамп данных таблицы `counter`
@@ -5756,7 +5753,11 @@ INSERT INTO `counter` (`id`, `id_counter`, `id_card`) VALUES
 (21, 2072, 2072),
 (22, 2073, 2073),
 (23, 2813, 2813),
-(24, 2814, 2814);
+(24, 2814, 2814),
+(25, 1872, 1872),
+(26, 1873, 1873),
+(27, 1874, 1874),
+(28, 1875, 1875);
 
 -- --------------------------------------------------------
 
@@ -5770,16 +5771,17 @@ CREATE TABLE IF NOT EXISTS `counter_house` (
   `id_hs` int(11) NOT NULL,
   `counter_type` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=165951 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=27 ;
 
 --
 -- Дамп данных таблицы `counter_house`
 --
 
 INSERT INTO `counter_house` (`id`, `id_counter`, `id_hs`, `counter_type`) VALUES
-(165948, 1, 170, 1),
-(165949, 1, 170, 1),
-(165950, 1, 170, 2);
+(1, 100500, 133, 1),
+(23, 100501, 133, 2),
+(24, 1, 140, 1),
+(26, 2, 140, 2);
 
 -- --------------------------------------------------------
 
@@ -5800,11 +5802,6 @@ CREATE TABLE IF NOT EXISTS `deduction` (
   KEY `id_tenant` (`id_tenant`),
   KEY `id_service` (`id_service`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Дамп данных таблицы `deduction`
---
-
 
 -- --------------------------------------------------------
 
@@ -5869,7 +5866,6 @@ CREATE TABLE IF NOT EXISTS `house` (
   `quality_quarters` text NOT NULL,
   `quantity_flat` int(11) NOT NULL,
   `square` double(8,2) NOT NULL COMMENT 'Площадь всех помещений, включая общее имущество',
-  `counter` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Общедомовой счетчик',
   PRIMARY KEY (`id_house`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=24 ;
 
@@ -5877,29 +5873,29 @@ CREATE TABLE IF NOT EXISTS `house` (
 -- Дамп данных таблицы `house`
 --
 
-INSERT INTO `house` (`id_house`, `adress`, `full_adress`, `quality_quarters`, `quantity_flat`, `square`, `counter`) VALUES
-(1, 'ул. Октябрьская, д.1', ' ', 'Кирпичный', 18, 0.00, 0),
-(2, 'ул. Октябрьская, д.2', ' ', 'Кирпичный', 24, 0.00, 0),
-(4, 'ул. Октябрьская, д.4', ' ', 'Панельный', 42, 0.00, 0),
-(5, 'ул. Октябрьская, д.3', ' ', 'Кирпичный', 24, 0.00, 0),
-(6, 'ул. Октябрьская, д.5', ' ', 'Панельный', 38, 0.00, 0),
-(7, 'ул. Октябрьская, д.6', ' ', 'Панельный', 45, 0.00, 0),
-(8, 'ул. Октябрьская, д.9а', ' ', 'Деревянный', 9, 0.00, 0),
-(9, 'ул. Октябрьская, д.6 общ.', ' ', 'Панельный', 14, 0.00, 0),
-(10, 'ул. Октябрьская, д.9', ' ', 'Деревянный', 17, 0.00, 0),
-(11, 'ул. Октябрьская, д.10', ' ', 'Деревянный', 2, 0.00, 0),
-(12, 'ул. Академическая, д.2', ' ', 'Кирпичный', 16, 0.00, 0),
-(13, 'ул. Академическая, д.3', ' ', 'Кирпичный', 16, 0.00, 0),
-(14, 'ул. Академическая, д.4', ' ', 'Кирпичный', 18, 0.00, 0),
-(15, 'ул. Академическая, д.9', ' ', 'Кирпичный', 22, 0.00, 0),
-(16, 'ул. Академическая, д.14', ' ', 'Панельный', 20, 0.00, 0),
-(17, 'ул. Академическая, д.15', ' ', 'Панельный', 18, 0.00, 0),
-(18, 'ул. Гудина, д.13', ' ', 'Панельный', 41, 0.00, 0),
-(19, 'ул. Гудина, д.13а', ' ', 'Панельный', 41, 0.00, 0),
-(20, 'ул. Академическая, д.10', ' ', 'Панельный', 47, 0.00, 0),
-(21, 'ул. Академическая, д.11', ' ', 'Панельный', 33, 0.00, 0),
-(22, 'ул. Горького, д.91', ' ', 'деревянный', 2, 0.00, 0),
-(23, 'ул. Горького, д.103', ' ', 'деревянный', 9, 0.00, 0);
+INSERT INTO `house` (`id_house`, `adress`, `full_adress`, `quality_quarters`, `quantity_flat`, `square`) VALUES
+(1, 'ул. Октябрьская, д.1', ' ', 'Кирпичный', 18, 0.00),
+(2, 'ул. Октябрьская, д.2', ' ', 'Кирпичный', 24, 0.00),
+(4, 'ул. Октябрьская, д.4', ' ', 'Панельный', 42, 0.00),
+(5, 'ул. Октябрьская, д.3', ' ', 'Кирпичный', 24, 0.00),
+(6, 'ул. Октябрьская, д.5', ' ', 'Панельный', 38, 0.00),
+(7, 'ул. Октябрьская, д.6', ' ', 'Панельный', 45, 0.00),
+(8, 'ул. Октябрьская, д.9а', ' ', 'Деревянный', 9, 0.00),
+(9, 'ул. Октябрьская, д.6 общ.', ' ', 'Панельный', 14, 0.00),
+(10, 'ул. Октябрьская, д.9', ' ', 'Деревянный', 17, 0.00),
+(11, 'ул. Октябрьская, д.10', ' ', 'Деревянный', 2, 0.00),
+(12, 'ул. Академическая, д.2', ' ', 'Кирпичный', 16, 0.00),
+(13, 'ул. Академическая, д.3', ' ', 'Кирпичный', 16, 0.00),
+(14, 'ул. Академическая, д.4', ' ', 'Кирпичный', 18, 0.00),
+(15, 'ул. Академическая, д.9', ' ', 'Кирпичный', 22, 0.00),
+(16, 'ул. Академическая, д.14', ' ', 'Панельный', 20, 0.00),
+(17, 'ул. Академическая, д.15', ' ', 'Панельный', 18, 0.00),
+(18, 'ул. Гудина, д.13', ' ', 'Панельный', 41, 0.00),
+(19, 'ул. Гудина, д.13а', ' Иркутская обл., Иркутский р-он, р.п. Листвянка, ул. Гудина, д.13а', 'Панельный', 41, 1600.00),
+(20, 'ул. Академическая, д.10', ' ', 'Панельный', 47, 1000.00),
+(21, 'ул. Академическая, д.11', ' ', 'Панельный', 33, 0.00),
+(22, 'ул. Горького, д.91', ' ', 'деревянный', 2, 0.00),
+(23, 'ул. Горького, д.103', ' ', 'деревянный', 9, 0.00);
 
 -- --------------------------------------------------------
 
@@ -5918,11 +5914,6 @@ CREATE TABLE IF NOT EXISTS `inhabitant` (
   PRIMARY KEY (`id_inhabitant`),
   KEY `id_tenant` (`id_tenant`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Дамп данных таблицы `inhabitant`
---
-
 
 -- --------------------------------------------------------
 
@@ -8751,19 +8742,6 @@ INSERT INTO `leftover` (`id_leftover`, `id_tenant`, `id_service`, `amount`, `the
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `malefemale`
---
--- используется(#1146 - Table 'jkh.malefemale' doesn't exist)
-
---
--- Дамп данных таблицы `malefemale`
---
-
--- используется (#1146 - Table 'jkh.malefemale' doesn't exist)
-
--- --------------------------------------------------------
-
---
 -- Структура таблицы `payment`
 --
 
@@ -8780,11 +8758,6 @@ CREATE TABLE IF NOT EXISTS `payment` (
   KEY `id_service` (`id_service`),
   KEY `id_tenant` (`id_tenant`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Дамп данных таблицы `payment`
---
-
 
 -- --------------------------------------------------------
 
@@ -8808,11 +8781,6 @@ CREATE TABLE IF NOT EXISTS `privelege` (
   `the_note` text NOT NULL,
   PRIMARY KEY (`id_privelege`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Дамп данных таблицы `privelege`
---
-
 
 -- --------------------------------------------------------
 
@@ -8969,17 +8937,17 @@ INSERT INTO `service_for_house` (`id_sfh`, `id_house`, `id_service`, `counter`) 
 (130, 17, 19, 0),
 (131, 17, 20, 0),
 (132, 18, 5, 0),
-(133, 18, 9, 0),
-(134, 18, 10, 0),
-(135, 18, 11, 0),
-(136, 18, 12, 0),
+(133, 18, 9, 1),
+(134, 18, 10, 1),
+(135, 18, 11, 1),
+(136, 18, 12, 1),
 (137, 18, 8, 0),
 (138, 19, 5, 0),
 (139, 19, 8, 0),
-(140, 19, 9, 0),
-(141, 19, 10, 0),
-(142, 19, 11, 0),
-(143, 19, 12, 0),
+(140, 19, 9, 1),
+(141, 19, 10, 1),
+(142, 19, 11, 1),
+(143, 19, 12, 1),
 (144, 20, 13, 0),
 (145, 20, 14, 0),
 (146, 20, 15, 0),
@@ -8996,7 +8964,7 @@ INSERT INTO `service_for_house` (`id_sfh`, `id_house`, `id_service`, `counter`) 
 (157, 22, 7, 0),
 (158, 22, 8, 0),
 (159, 22, 10, 0),
-(170, 1, 1, 1);
+(170, 1, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -9008,7 +8976,7 @@ CREATE TABLE IF NOT EXISTS `service_type` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name_type` varchar(20) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
 --
 -- Дамп данных таблицы `service_type`
@@ -10872,10 +10840,10 @@ INSERT INTO `tenant_card` (`id_card`, `id_service`, `id_tenant`, `amount`, `coun
 (1847, 12, 30141, 371.27, 0),
 (1848, 5, 30201, 417.52, 0),
 (1849, 8, 30201, 2932.38, 0),
-(1850, 9, 30201, 946.76, 0),
-(1851, 10, 30201, 174.49, 0),
-(1852, 11, 30201, 348.97, 0),
-(1853, 12, 30201, 278.45, 0),
+(1850, 9, 30201, 1262.34, 0),
+(1851, 10, 30201, 232.66, 0),
+(1852, 11, 30201, 465.29, 0),
+(1853, 12, 30201, 371.27, 0),
 (1854, 5, 30202, 198.94, 0),
 (1855, 8, 30202, 1397.19, 0),
 (1856, 9, 30202, 315.59, 0),
@@ -10894,10 +10862,10 @@ INSERT INTO `tenant_card` (`id_card`, `id_service`, `id_tenant`, `amount`, `coun
 (1869, 26, 30203, 0, 0),
 (1870, 5, 30204, 422.43, 0),
 (1871, 8, 30204, 2966.88, 0),
-(1872, 9, 30204, 0, 0),
-(1873, 10, 30204, 0, 0),
-(1874, 11, 30204, 0, 0),
-(1875, 12, 30204, 0, 0),
+(1872, 9, 30204, 0, 1),
+(1873, 10, 30204, 0, 1),
+(1874, 11, 30204, 0, 1),
+(1875, 12, 30204, 0, 1),
 (1876, 5, 30205, 202.01, 0),
 (1877, 8, 30205, 1418.75, 0),
 (1878, 9, 30205, 315.59, 0),
@@ -12326,7 +12294,7 @@ INSERT INTO `the_tenant` (`id_tenant`, `number_flat`, `surname`, `name_tenant`, 
 (30139, '39', 'Берсанов', 'А', 'Ю', 31.1, 0, 2, 1, 18, 1),
 (30140, '40', 'Кураева', 'Т', 'З', 23.2, 1, 1, 1, 18, 1),
 (30141, '41', 'Корякин', 'М', 'М', 55, 4, 4, 1, 18, 1),
-(30201, '1', 'Коровякова', 'Л', 'Т', 68, 3, 3, 1, 19, 1),
+(30201, '1', 'Коровякова', 'Л', 'Т', 68, 4, 4, 1, 19, 1),
 (30202, '2', 'Неустроева', 'Л', 'К', 32.4, 1, 1, 1, 19, 1),
 (30203, '3', 'Округина', 'Е', 'А', 48.9, 2, 2, 1, 19, 1),
 (30204, '4', 'Белозерцева', 'О', 'П', 68.8, 0, 2, 1, 19, 1),
@@ -12408,8 +12376,7 @@ ALTER TABLE `calculation_parts`
 -- Ограничения внешнего ключа таблицы `common_parts`
 --
 ALTER TABLE `common_parts`
-  ADD CONSTRAINT `FK_hcp` FOREIGN KEY (`house`) REFERENCES `house` (`id_house`),
-  ADD CONSTRAINT `FK_scp` FOREIGN KEY (`service`) REFERENCES `service` (`id_service`);
+  ADD CONSTRAINT `common_parts_ibfk_1` FOREIGN KEY (`id_ch`) REFERENCES `counter_house` (`id`);
 
 --
 -- Ограничения внешнего ключа таблицы `counter`
@@ -12449,9 +12416,9 @@ ALTER TABLE `payment`
 -- Ограничения внешнего ключа таблицы `service`
 --
 ALTER TABLE `service`
-  ADD CONSTRAINT `service_ibfk_3` FOREIGN KEY (`id_sertype`) REFERENCES `service_type` (`id`),
   ADD CONSTRAINT `service_ibfk_1` FOREIGN KEY (`id_company`) REFERENCES `company` (`id_company`),
-  ADD CONSTRAINT `service_ibfk_2` FOREIGN KEY (`id_gs`) REFERENCES `general_service` (`id_gs`);
+  ADD CONSTRAINT `service_ibfk_2` FOREIGN KEY (`id_gs`) REFERENCES `general_service` (`id_gs`),
+  ADD CONSTRAINT `service_ibfk_3` FOREIGN KEY (`id_sertype`) REFERENCES `service_type` (`id`);
 
 --
 -- Ограничения внешнего ключа таблицы `service_for_house`
@@ -12473,3 +12440,7 @@ ALTER TABLE `tenant_card`
 ALTER TABLE `the_tenant`
   ADD CONSTRAINT `the_tenant_ibfk_1` FOREIGN KEY (`id_domain`) REFERENCES `domain` (`id_domain`),
   ADD CONSTRAINT `the_tenant_ibfk_2` FOREIGN KEY (`id_house`) REFERENCES `house` (`id_house`);
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

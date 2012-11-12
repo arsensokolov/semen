@@ -296,6 +296,7 @@ if (isset($_POST['cp']) && $_POST['cp']=='cp_data') {
 		$cp.="Расчетный период с ".$date1." по ".$date2."<br><br>";
 		$cp.="Показание на начало месяца <input type='text' id='min_counter'> <br> ";
 		$cp.="Показание на конец месяца <input type='text' id='max_counter'> <br>  ";
+		$cp.="Объем по норме <input type='text' id='v_norma'> <br>  ";
 		//по норме
 		$norma=$my->query('SELECT (round(sum(s.price_for_1_sqr_metre_k2* t.square+price_for_1_people_k2* t.quantity_of_lodger),2)) as sum FROM 
 		`tenant_card` tc join the_tenant t on t.id_tenant=tc.id_tenant join service s on s.id_service=tc.id_service
@@ -311,14 +312,19 @@ if (isset($_POST['cp']) && $_POST['cp']=='cp_data') {
 		$ccnej=$my->query('SELECT sum(cc.count)  FROM `calculation_counter` cc join  counter c on cc.counter = c.id join tenant_card tc on c.id_card=tc.id_card 
 		join the_tenant t on t.id_tenant=tc.id_tenant where t.living=0 and tc.counter=1 
 		and tc.id_service='.$service.' and t.id_house='.$house.' and date between "'.$date1.'" and "'.$date2.'"');
+		//по перерасчетам
+		//$recalc=$my->query('');
+		
 		$norma1=$norma->fetch_assoc();
 		$cc1=$cc->fetch_assoc();
 		$normanej1=$normanej->fetch_assoc();
 		$ccnej1=$ccnej->fetch_assoc();
+		//$recalc1=$recalc->fetch_assoc();
 		if ($norma1['sum']=='') $norma1['sum']=0;
 		if ($cc1['sum']=='') $cc1['sum']=0;
 		if ($normanej1['sum']=='') $normanej1['sum']=0;
 		if ($ccnej1['sum']=='') $ccnej1['sum']=0;
+		//if ($recalc1['sum']=='') $recalc1['sum']=0;
 		$cp.= 'Объем за месяц ';
 		$cp.=	"<input type='text' id='cp_v' readOnly > <br>";
 		$cp.= 'Начислено по нормативу ';
@@ -327,14 +333,19 @@ if (isset($_POST['cp']) && $_POST['cp']=='cp_data') {
 		$cp.=	"<input type='text' id='cp_ipu' readOnly value=".$cc1['sum']."> <br>";
 		$cp.= 'Начислено по нежилым помещениям ';
 		$cp.=	"<input type='text' id='cp_nej' readOnly value=".($normanej1['sum']+$ccnej1['sum'])." > <br>";
+		$cp.= 'Начислено перерасчетов ';
+		$cp.=	"<input type='text' id='cp_recalc' readOnly value=0 > <br>";
 		$cp.= 'Общедомовые нужды ';
 		$cp.=	"<input type='text' id='odn' readOnly> <br>";
+		$cp.= 'Общедомовые нужды (сумма) ';
+		$cp.=	"<input type='text' id='odn_sum' readOnly> <br>";
 		$cp.= 'Примечание ';
 		$cp.=	"<input type='text' id='cp_node'> <br>";
 		$cp.= "<button type=\"button\" id='cp_rasch'>Рассчитать</button> <br><br>" ;
 		} else {
 		$cp.="Показание на начало месяца <input type='text' id='min_counter'> <br> ";
 		$cp.="Показание на конец месяца <input type='text' id='max_counter1'> <br>  ";
+		$cp.="Объем по норме <input type='text' id='v_norma'> <br>  ";
 		$cp.= 'Общедомовые нужды ';
 		$cp.=	"<input type='text' id='odn' readOnly> <br>";
 		$cp.= 'Примечание ';
@@ -350,8 +361,9 @@ if (isset($_POST['cp']) && $_POST['cp']=='cp_v') {
 	$min=$_POST['cp_min'];
 	$max=$_POST['cp_max'];
 	$v=$_POST['cp_v'];
-	$od=$max-$min;
-	$ost=$max-$min-$v;
+	$v_norma=$_POST['cp_norma'];
+	$od=round($max-$min+$v_norma,3);
+	$ost=round(($od-$v),3);
 	echo json_encode(array("result"=>$od,"ost"=>$ost));
   }
 
@@ -400,18 +412,37 @@ if (isset($_POST['cp']) && $_POST['cp']=='cp_ved') {
 	$t.= " <td> </td>";
 	$t.= " </tr>";		
 	$t.="</table> <br>";
+	$t.="<form name='table' action='index.php' method='get'>"; 
 	$t.="<center><button type=\"button\" id='cp_save_data'>Сохранить</button></center>";
+	
 	echo json_encode(array("result"=>$t));
 }
 
 //Начисление по ОДПУ->Сохранить данные
 if (isset($_POST['cp']) && $_POST['cp']=='cp_save_data') {
 	$t='';
-	$mas=$_POST['cp'];
-	for($i=0;$i==3;$i++) {
-		$t.=$mas[$i][0].' '.$mas[$i][1].' '.$mas[$i][2];
+	$date_cp = $_POST['#cp_date'];
+	$id_ch = $_POST['#cp_search_counter'];
+	$begin_count = $_POST['#min_counter'];
+	$end_count = $_POST['#max_count'];
+	$cp_count = $_POST['#cp_v'];
+	$cp_amount = $_POST['#cp_amount'];
+	$cp_node = $_POST['#cp_node'];
+	$cp_service = $_POST['cp_search_service'];
+	$mas=$_POST['cp_mas'];
+	
+	$q=$my->query('select max(id) as max from common_parts');
+	$q1=$q->fetch_assoc();
+	$id=$q1['max'];
+	
+	for($i=1;$i<count($mas)-2;$i++) {
+		 $t.=$mas[$i][0][0]	.' ,';
+		 $t.=$mas[$i][3][0]	.' ,';
+		 $t.=$mas[$i][4][0]	.'<br>';
 	}
-echo json_encode(array("result"=>$t));	
+	//$t.=  var_dump($mas);
+	$t.="</form>";
+ echo json_encode(array("result"=>$t));	
 }
 //-------------------------------------------------------------------
 

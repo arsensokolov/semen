@@ -1102,14 +1102,27 @@ $('#col2').on('click', '#cc_date', function() {
 //Начисление по ОДПУ ----------------------------------------------------------------------
 //Начисление по ОДПУ->Календарь	для начисления по ОДПУ
 $('#col2').on('click', '#cp_date', function() {
-		$(this).datepicker({
-			format: 'yyyy-mm-dd',
-			weekStart: 1
-		}).focus();
+	$(this).datepicker({
+		format: 'yyyy-mm-dd',
+		weekStart: 1
+	}).focus();
+	var house=$('#cp_search_house option:selected').val()
+	$.post('application.php', {cp:'cp_serv',cp_house:house}, function (data) {
+		$('#cp_serv').html(data.result);
+		$('#cp_counter').html('');
+		$('#cp_count').html('');
+		$('#cp_ved').html('');
+	}, "json")	
+})
+$('#col2').on('change', '#cp_date', function() {
+	
 	})
-
 //Начисление по ОДПУ->Адрес
 $('#col2').on('change', '#cp_search_house', function() {
+	var date = $('#cp_date').val()
+	if (date=='') {
+		alert('Не указана дата начисления')
+	} else {
 	var house=$('#cp_search_house option:selected').val()
 	$.post('application.php', {cp:'cp_serv',cp_house:house}, function (data) {
 		$('#cp_serv').html(data.result);
@@ -1117,6 +1130,7 @@ $('#col2').on('change', '#cp_search_house', function() {
 		$('#cp_count').html('');
 		$('#cp_ved').html('');
 	}, "json")
+	}
   })
 
 //Начисление по ОДПУ->Услуга  
@@ -1150,12 +1164,30 @@ $('#col2').on('keyup', '#max_counter', function() {
 	var norma=$('#cp_norma').val()
 	var ipu=$('#cp_ipu').val()
 	var nej=$('#cp_nej').val()
-	var v= parseFloat(norma)+parseFloat(ipu)+parseFloat(nej);
-	$.post('application.php', {cp:'cp_v',cp_max:max, cp_min:min,cp_v:v}, function (data) {
+	var v_norma=$('#v_norma').val()
+	var cp_recalc=$('#cp_recalc').val()
+	var v= parseFloat(norma)+parseFloat(ipu)+parseFloat(nej)-parseFloat(cp_recalc);
+	$.post('application.php', {cp:'cp_v',cp_max:max, cp_min:min,cp_v:v,cp_norma:v_norma}, function (data) {
 		$('#odn').val(data.ost);
 		$('#cp_v').val(data.result);
 	}, "json")
-  })
+})
+  
+//Начисление по ОДПУ->Объем по норме  
+$('#col2').on('keyup', '#v_norma', function() {
+	var min = $('#min_counter').val()
+	var max = $('#max_counter').val()
+	var norma=$('#cp_norma').val()
+	var ipu=$('#cp_ipu').val()
+	var nej=$('#cp_nej').val()
+	var v_norma=$('#v_norma').val()
+	var cp_recalc=$('#cp_recalc').val()
+	var v= parseFloat(norma)+parseFloat(ipu)+parseFloat(nej)-parseFloat(cp_recalc);
+	$.post('application.php', {cp:'cp_v',cp_max:max, cp_min:min,cp_v:v,cp_norma:v_norma}, function (data) {
+		$('#odn').val(data.ost);
+		$('#cp_v').val(data.result);
+	}, "json")
+})
   
   $('#col2').on('keyup', '#max_counter1', function() {
 	var min = $('#min_counter').val()
@@ -1186,17 +1218,41 @@ $('#col2').on('click', '#cp_rasch', function() {
 
 //Начисление по ОДПУ->Сохранение данных  
  $('#col2').on('click', '#cp_save_data', function() {
-	var mas = [];
-	for (i=1;i<=document.getElementById('ved_table').getElementsByTagName('tr').length-4;i=i+2) {
-		mas[i][0]=$("#col2 #ved_table tr:eq("+i+") td:eq(0)").text()
-		mas[i][1]=$("#col2 #ved_table tr:eq("+i+") td:eq(3)").text()
-		mas[i][2]=$("#col2 #ved_table tr:eq("+i+") td:eq(4)").text()	
+	var date_cp = $('#cp_date').val();
+	var id_ch = $('#cp_search_counter option:selected').val()
+	var begin_count = $('#min_counter').val()
+	var end_count = $('#max_count').val()
+	var cp_count = $('#cp_v').val()
+	var cp_amount = $('#cp_amount').val()
+	var cp_node = $('#cp_node').val()
+	var cp_service = $('cp_search_service option:selected').val()
+	var mas = new Array;
+	for (i=1;i<=document.getElementById('ved_table').getElementsByTagName('tr').length;i++) {
+		mas[i] = new Array;
+		for (j=0;j<=5;j++) {
+		mas [i][j] =new Array;
+		mas[i][j][0]=$("#col2 #ved_table tr:eq("+i+") td:eq("+j+")").text()
+		}
 	}
-	$.post('application.php', {cp:'cp_save_data',cp_mas:mas}, function (data) {
+	$.post('application.php', {cp:'cp_save_data',cp_mas:mas,date_cp:date_cp,id_ch:id_ch,begin_count:begin_count,end_count:end_count,
+	cp_count:cp_count, cp_amount:cp_amount, cp_node:cp_node, cp_service:cp_service}, function (data) {
 			$('#cp_ved').html(data.result);
-		}, "json")
+	}, "json")
  })
 
+ //Начисление по ОДПУ->Изменение таблицы
+ $("#col2").on('click', '#ved_table td', function(){
+	if  (($(this).index()==5) && ($(this).closest("tr").index()!='0')) {
+   $(this).html("<input id='input' type='text' value='"+$(this).text()+"'/>");
+   }
+// Что бы input не ставился повторно, запрещаем
+}).on('click', '#ved_table td input', function(){
+    return false;
+// При потере фокуса в input, возвращаем все как было.
+}).on('blur', '#ved_table td', function(){
+    // text, т.к. html теги не обрабатываются.
+    $(this).text($('#col2 #input').val());
+ })
 //----------------------------------------------------------------------------------------
 
 })
