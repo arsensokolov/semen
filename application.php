@@ -80,7 +80,7 @@ if (isset($_POST['ai_month']) && isset($_POST['ai_year']) && isset($_POST['month
 	$result.=';';
 	file_put_contents(__DIR__.'/temp.sql', $result);
 	$res = shell_exec('mysql -ujkhuser -pjkhpassword jkh < temp.sql');
-	echo json_encode(array("result"=>$res));
+	echo json_encode(array("result"=>'Операция выполнена!'));
 }
 
 //--------------------------------------------------------------------
@@ -529,13 +529,16 @@ if (isset($_POST['action']) && $_POST['action']=='recalc_add_data') {
     $recalc.= "<input type='text' id='recalc_date2'> <br>";
     
     $recalc.=  "<label for='tc_s'>Количество:</label>";
-    $recalc.= "<input type='text' id='recalc_kolvo'  disabled='disabled'> ";
+    $recalc.= "<input type='text' id='recalc_v'  > ";
     
     $recalc.=  "<label for='tc_kolvo'>Сумма:</label>";
     $recalc.= "<input type='text' id='recalc_summa'  > <br>";
 	
 	$recalc.=  "<label for='tc_kolvo'>Примечание:</label>";
     $recalc.= "<input type='text' id='recalc_node'> <br>";
+	
+	$recalc.="<br><button type=\"button\" id='recalc_save_data'>Сохранить</button>";
+	
 	$recalc.="</form>";
 	echo json_encode(array("result"=>$recalc));
 }
@@ -556,16 +559,12 @@ if (isset($_POST['action']) && $_POST['action']=='recalc_data1') {
 	$v=0;
 	$summ=0;
 	for ($j=$year1;$j<=$year2;$j++) {
-		$recalc.= 'cikl1 ';
 		for ($i=$month1;$i<=$month2;$i++) {
-			$recalc.= 'cikl2 ';
 			if (($month1==$month2) && ($year1==$year2)) {
 				$date_t1=date("Y-m-d", mktime(0, 0, 0, $i, 1, $year1));
 				$date_t2=date("Y-m-d", mktime(0, 0, 0, $i+1, 0, $year2));
-				$q=$my->query('select sum(count) as count, sum(amount) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' 
+				$q=$my->query('select round(sum(count),2) as count, round(sum(amount),2) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' 
 				and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"');
-				$recalc.= 'select sum(count) as count, sum(amount) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' 
-				and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"';
 				$row=$q->fetch_assoc();
 				$date_t1= mktime(0, 0, 0, $i, 0, $year1);
 				$date_t2= mktime(0, 0, 0, $i+1, 0, $year2);
@@ -573,15 +572,14 @@ if (isset($_POST['action']) && $_POST['action']=='recalc_data1') {
 				$day=round($day2)-round($day1)+1;
 				$v=$row['count']*$day/$days;
 				$summ=$row['amount']*$day/$days;
-				$recalc.= $days.' ';
-				$recalc.= $day.' ';
-				
+				// $recalc.= $days.' |';
+				// $recalc.= $day.' |';	
 			}
 		}
 	}
-	$recalc.= $v.' ';
-	$recalc.= $summ;
-	echo json_encode(array("result"=>$recalc));
+	$v = round($v,3);
+	$summ = round($summ,2);
+	echo json_encode(array("v"=>$v,"sum"=>$summ));
 }
 
 //-------------------------------------------------------------------

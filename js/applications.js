@@ -1334,7 +1334,7 @@ $('#col2').on('click', '#recalc_date2', function() {
 		format: 'yyyy-mm-dd',
 		weekStart: 1
 	}).focus();
-	$('#recalc_kolvo').val('sdasd');
+	//$('#recalc_kolvo').val('sdasd');
 })
 
 //Перерасчет->Подсчет объема вычета и суммы
@@ -1344,7 +1344,9 @@ $('#col2').on('blur', '#recalc_date2', function() {
 	var id_tenant =  $('#recalc_id').val();
 	var id_service =  $('#recalc_service option:selected').val();
    	$.post('application.php', {action:'recalc_data1',date1:date1,date2:date2,id_tenant:id_tenant,id_service:id_service}, function(data) {
-		$('#recalc_summa').val(data.result);
+		$('#recalc_summa').val(data.sum);
+		$('#recalc_v').val(data.v);
+		
 	}, "json")
 })
 
@@ -1356,7 +1358,7 @@ $('#col2').on('keyup', '#recalc_kv', function() {
 		$('#data_tenant_div').html(data.result)
 	}, "json")
 })
-
+//Перерасчет->Вывод формы добавления
 $('#col2').on('click', '#recalc_add_data', function() {
 	var id = $('#recalc_id').val();
    	$.post('application.php', {action:'recalc_add_data',recalc_id:id}, function(data) {
@@ -1364,5 +1366,16 @@ $('#col2').on('click', '#recalc_add_data', function() {
 	}, "json")
 })
 
+//Перерасчет->Вывод формы добавления
+$('#col2').on('click', '#recalc_save_data', function() {
+	var id = $('#recalc_service option:selected').val()
+	var service = $('#recalc_service option:selected').text()
+	var date1 = $('#recalc_date1').val()
+	var date2 = $('#recalc_date2').val()
+	var datev = $('#recalc_v').val()
+   	$.post('application.php', {action:'recalc_add_data',recalc_id:id}, function(data) {
+		$('#recalc_add_new_data').html(data.result)
+	}, "json")
+})
 })
 
