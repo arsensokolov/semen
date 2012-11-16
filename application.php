@@ -78,7 +78,7 @@ if (isset($_POST['ai_month']) && isset($_POST['ai_year']) && isset($_POST['month
 		$k++;	
 	}
 	$result.=';';
-	file_put_contents('temp.sql', $result);
+	file_put_contents(__DIR__.'/temp.sql', $result);
 	$res = shell_exec('mysql -ujkhuser -pjkhpassword jkh < temp.sql');
 	// "<pre>$output</pre>";
 	//exec('mysql -ujkhuser -pjkhpassword jkh < temp.sql',$res,$res);
