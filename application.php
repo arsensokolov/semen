@@ -55,13 +55,36 @@ if (isset($_POST['tc_edit_id_card']) && isset($_POST['tc_edit_id_service'])) {
 //Начисление->Произведение начисления  
 if (isset($_POST['ai_month']) && isset($_POST['ai_year']) && isset($_POST['month_text'])) {
 	$result='';
-	$q=$my->query('SELECT * FROM  `tenant_card` tc where counter=0');
+	$q=$my->query('SELECT tc.id_tenant,tc.id_service, round(tc.amount,2) as amount, (round(s.price_for_1_sqr_metre_k2,2)+round(s.price_for_1_people_k2,2)) as norma FROM `tenant_card` tc join service s on tc.id_service=s.id_service where counter=0 order by tc.id_tenant');
+	$s='';
+	$k=1;
+	$result.='insert into accrued_items values ';
 	while (@$row=$q->fetch_assoc()) {
-		$result='insert into accrued_items values ("" , "' .date("Y.m.d",mktime(0, 0, 0, $_POST['ai_month']+1, 0, $_POST['ai_year'])).
-		'" , '.$row['id_tenant'].' , '.$row['id_service'].' , '.$row['amount'].' , "начислено за '.$_POST['month_text'].' '.$_POST['ai_year'].'"); ';
-		$res=$my->query($result);
+		if (($k % 500)==0) {
+			$result.='; insert into accrued_items values ';
+			$result.=' ("" , "' .date("Y.m.d",mktime(0, 0, 0, $_POST['ai_month']+1, 0, $_POST['ai_year'])).
+		'" , '.$row['id_tenant'].' , '.$row['id_service'].' , '.$row['norma'].' , '.$row['amount'].' , 
+		 "начислено за '.$_POST['month_text'].' '.$_POST['ai_year'].'") ';
+		}
+		if ($k==1) {
+			$result.=' ("" , "' .date("Y.m.d",mktime(0, 0, 0, $_POST['ai_month']+1, 0, $_POST['ai_year'])).
+			'" , '.$row['id_tenant'].' , '.$row['id_service'].' , '.$row['norma'].' , '.$row['amount'].' , 
+			"начислено за '.$_POST['month_text'].' '.$_POST['ai_year'].'") ';
+		} else {
+			$result.=', ("" , "' .date("Y.m.d",mktime(0, 0, 0, $_POST['ai_month']+1, 0, $_POST['ai_year'])).
+			'" , '.$row['id_tenant'].' , '.$row['id_service'].' , '.$row['norma'].' , '.$row['amount'].' , 
+			"начислено за '.$_POST['month_text'].' '.$_POST['ai_year'].'") '; 
+		 }
+		$k++;	
 	}
-	echo json_encode(array("result"=>'Начисление по нормативу выполнено!'));
+	$result.=';';
+	file_put_contents('temp.sql', $result);
+	$res = shell_exec('mysql -ujkhuser -pjkhpassword jkh < temp.sql');
+	// "<pre>$output</pre>";
+	//exec('mysql -ujkhuser -pjkhpassword jkh < temp.sql',$res,$res);
+	//$res=$my->query($result);
+	//$result.=$q->num_rows;
+	echo json_encode(array("result"=>$res));
 }
 
 //--------------------------------------------------------------------
@@ -345,9 +368,11 @@ if (isset($_POST['cp']) && $_POST['cp']=='cp_data') {
 		} else {
 		$cp.="Показание на начало месяца <input type='text' id='min_counter'> <br> ";
 		$cp.="Показание на конец месяца <input type='text' id='max_counter1'> <br>  ";
-		$cp.="Объем по норме <input type='text' id='v_norma'> <br>  ";
+		$cp.="Объем по норме <input type='text' id='v_norma1'> <br>  ";
 		$cp.= 'Общедомовые нужды ';
 		$cp.=	"<input type='text' id='odn' readOnly> <br>";
+		$cp.= 'Общедомовые нужды (сумма) ';
+		$cp.=	"<input type='text' id='odn_sum' readOnly> <br>";
 		$cp.= 'Примечание ';
 		$cp.=	"<input type='text' id='cp_node'> <br>";
 		$cp.= "<button type=\"button\" id='cp_rasch'>Рассчитать</button> <br><br>" ;
@@ -358,13 +383,16 @@ if (isset($_POST['cp']) && $_POST['cp']=='cp_data') {
 
 //Начисление по ОДПУ->Конечные показания счетчика 
 if (isset($_POST['cp']) && $_POST['cp']=='cp_v') {
+	$q=$my->query('select (price_for_1_people_k1+price_for_1_sqr_metre_k1) as price from service where id_service='.$_POST['cp_service']);
+	$q1=$q->fetch_assoc();
 	$min=$_POST['cp_min'];
 	$max=$_POST['cp_max'];
 	$v=$_POST['cp_v'];
 	$v_norma=$_POST['cp_norma'];
 	$od=round($max-$min+$v_norma,3);
 	$ost=round(($od-$v),3);
-	echo json_encode(array("result"=>$od,"ost"=>$ost));
+	$amount=round($ost*$q1['price'],2);
+	echo json_encode(array("result"=>$od,"ost"=>$ost,"amount"=>$amount));
   }
 
 //Начисление по ОДПУ->Рассчитать
@@ -414,36 +442,151 @@ if (isset($_POST['cp']) && $_POST['cp']=='cp_ved') {
 	$t.="</table> <br>";
 	$t.="<form name='table' action='index.php' method='get'>"; 
 	$t.="<center><button type=\"button\" id='cp_save_data'>Сохранить</button></center>";
-	
 	echo json_encode(array("result"=>$t));
 }
 
 //Начисление по ОДПУ->Сохранить данные
 if (isset($_POST['cp']) && $_POST['cp']=='cp_save_data') {
 	$t='';
-	$date_cp = $_POST['#cp_date'];
-	$id_ch = $_POST['#cp_search_counter'];
-	$begin_count = $_POST['#min_counter'];
-	$end_count = $_POST['#max_count'];
-	$cp_count = $_POST['#cp_v'];
-	$cp_amount = $_POST['#cp_amount'];
-	$cp_node = $_POST['#cp_node'];
-	$cp_service = $_POST['cp_search_service'];
+	$date_cp = $_POST['cp_date'];
+	$id_ch = $_POST['id_ch'];
+	$begin_count = $_POST['begin_count'];
+	$end_count = $_POST['end_count'];
+	$cp_count = $_POST['cp_count'];
+	$cp_amount = $_POST['cp_amount'];
+	$cp_node = $_POST['cp_node'];
+	$cp_service = $_POST['cp_service'];
+	$norma=$POST['v_norma'];
 	$mas=$_POST['cp_mas'];
-	
 	$q=$my->query('select max(id) as max from common_parts');
 	$q1=$q->fetch_assoc();
 	$id=$q1['max'];
-	
+	if ($id=='') {$id=1;}	
+	$q=$my->query('insert into common_parts values ('.$id.',"'.$date_cp.'",'.$id_ch.','.$begin_count.','.$end_count.','.$cp_count.','.$cp_amount.',"'.$cp_node.'")');
 	for($i=1;$i<count($mas)-2;$i++) {
-		 $t.=$mas[$i][0][0]	.' ,';
-		 $t.=$mas[$i][3][0]	.' ,';
-		 $t.=$mas[$i][4][0]	.'<br>';
+		$q=$my->query('insert into calculation_parts values ("","'.$date_cp.'",'.$mas[$i][0][0].','.$cp_service.','.$id.','.$mas[$i][3][0].','.$mas[$i][4][0].',"'.$mas[$i][5][0].'")');
 	}
-	//$t.=  var_dump($mas);
 	$t.="</form>";
  echo json_encode(array("result"=>$t));	
 }
 //-------------------------------------------------------------------
 
+//Перерасчет---------------------------------------------------------
+//Перерасчет->Вывод данных о квартиросъемщике
+if (isset($_POST['action']) && $_POST['action']=='recalc_tenant') {
+	$recalc='';
+	$house = $_POST['recalc_house'];
+	$kv = $_POST['recalc_kv'];
+	$ten=$my->query('SELECT * FROM  `the_tenant` where id_house="'.$house.'" and number_flat="'.$kv.'"');
+    $row=$ten->fetch_assoc();
+	$recalc.=  "<label for='tc_fio'>Лицевой счет:</label>";
+    $recalc.= "<input type='text' id='recalc_id' disabled='disabled' value=".$row['id_tenant'].">  <br>";
+      
+    $recalc.=  "<label for='tc_fio'>ФИО:</label>";
+    $recalc.= "<input type='text' id='recalc_fio' disabled='disabled' value=\"".$row['surname']." ".$row['name_tenant']. " ".$row['patronomic']."\"> <br>";
+    
+    $recalc.=  "<label for='tc_s'>Площадь:</label>";
+    $recalc.= "<input type='text' id='recalc_S'  disabled='disabled' value=".$row['square']."> ";
+    
+    $recalc.=  "<label for='tc_kolvo'>Количество человек:</label>";
+    $recalc.= "<input type='text' id='recalc_kolvo'  disabled='disabled' value=".$row['quantity_of_lodger']."> <br>";
+	 echo json_encode(array("result"=>$recalc));	
+}
+
+//Перерасчет->Вывод данных о квартиросъемщике
+if (isset($_POST['action']) && $_POST['action']=='recalc_data') {
+	$recalc='';
+	$recalc.= "<table id='recalc_table' border=1 cellspacing=0 cellpadding=2 width=680 px align='center'>";
+	$recalc.= "<tr>";
+	$recalc.= " <td> №</td>";
+	$recalc.= " <td> Начальная дата </td>";
+	$recalc.= " <td> Конечная дата </td>";
+	$recalc.= " <td> Услуга </td>";
+	$recalc.= " <td> Кол-во </td>";
+	$recalc.= " <td> Сумма </td>";
+	$recalc.= " <td> Примечание </td>";
+	$recalc.= " </tr>";
+	$recalc.= " </table> <br>";
+	$recalc.="<center><button type=\"button\" id='recalc_add_data'>Добавить</button>";
+	$recalc.="<button type=\"button\" id='recalc_rem_data'>Удалить</button></center>";
+	$recalc.="<div id='recalc_add_new_data'> </div>";
+	echo json_encode(array("result"=>$recalc));
+}
+
+//Перерасчет->Вывод формы добавление записи
+if (isset($_POST['action']) && $_POST['action']=='recalc_add_data') {
+	$recalc='';
+	$recalc.= "<form name='recalc' action='index.php' method='get'>";
+	$recalc.= "Услуга:<br>" ;
+	//$recalc.= 'SELECT id_service, name_service FROM  `service` s join tenant_card tc on tc.id_service=s.id_service where tc.id_tenant='.$_POST['recalc_id'];
+	$recalc.= "<select id='recalc_service' size=1>";
+	$adr=$my->query('SELECT s.id_service, s.name_service FROM  `service` s join tenant_card tc on tc.id_service=s.id_service where tc.id_tenant='.$_POST['recalc_id']);
+	while (@$num=$adr->fetch_assoc()) {
+		$recalc.= "<option value=".$num['id_service'].">".$num['name_service']."</option>";
+	}
+	$recalc.= "</select><br>";
+
+	$recalc.=  "<label for='tc_fio'>Начальная дата:</label>";
+    $recalc.= "<input type='text' id='recalc_date1'>  <br>";
+      
+    $recalc.=  "<label for='tc_fio'>Конечная дата:</label>";
+    $recalc.= "<input type='text' id='recalc_date2'> <br>";
+    
+    $recalc.=  "<label for='tc_s'>Количество:</label>";
+    $recalc.= "<input type='text' id='recalc_kolvo'  disabled='disabled'> ";
+    
+    $recalc.=  "<label for='tc_kolvo'>Сумма:</label>";
+    $recalc.= "<input type='text' id='recalc_summa'  > <br>";
+	
+	$recalc.=  "<label for='tc_kolvo'>Примечание:</label>";
+    $recalc.= "<input type='text' id='recalc_node'> <br>";
+	$recalc.="</form>";
+	echo json_encode(array("result"=>$recalc));
+}
+
+//Перерасчет->Выбрана конечная дата
+if (isset($_POST['action']) && $_POST['action']=='recalc_data1') {
+	$recalc='';
+	$id_tenant=$_POST['id_tenant'];
+	$id_service=$_POST['id_service'];
+	$date1=$_POST['date1'];
+	$date2=$_POST['date2'];
+	$day1=substr($date1,-2,2);
+	$day2=substr($date2,-2,2);
+	$month1=substr($date1,-5,2);
+	$month2=substr($date2,-5,2);
+	$year1=substr($date1,-10,4);
+	$year2=substr($date2,-10,4);
+	$v=0;
+	$summ=0;
+	for ($j=$year1;$j<=$year2;$j++) {
+		$recalc.= 'cikl1 ';
+		for ($i=$month1;$i<=$month2;$i++) {
+			$recalc.= 'cikl2 ';
+			if (($month1==$month2) && ($year1==$year2)) {
+				$date_t1=date("Y-m-d", mktime(0, 0, 0, $i, 1, $year1));
+				$date_t2=date("Y-m-d", mktime(0, 0, 0, $i+1, 0, $year2));
+				$q=$my->query('select sum(count) as count, sum(amount) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' 
+				and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"');
+				$recalc.= 'select sum(count) as count, sum(amount) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' 
+				and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"';
+				$row=$q->fetch_assoc();
+				$date_t1= mktime(0, 0, 0, $i, 0, $year1);
+				$date_t2= mktime(0, 0, 0, $i+1, 0, $year2);
+				$days=($date_t2-$date_t1)/86400;
+				$day=round($day2)-round($day1)+1;
+				$v=$row['count']*$day/$days;
+				$summ=$row['amount']*$day/$days;
+				$recalc.= $days.' ';
+				$recalc.= $day.' ';
+				
+			}
+		}
+	}
+	$recalc.= $v.' ';
+	$recalc.= $summ;
+	echo json_encode(array("result"=>$recalc));
+}
+
+//-------------------------------------------------------------------
 ?>                     

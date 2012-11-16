@@ -31,9 +31,20 @@ switch($_GET['db']) {
 		include 'sprav/leftover.php';
 		break;
 }
-include 'oper/ai.php';
-include 'oper/cc.php';
-include 'oper/cp.php';
+switch($_GET['op']) {
+	case 'ai':
+		include 'oper/ai.php';
+		break;
+	case 'cc':
+		include 'oper/cc.php';
+		break;
+	case 'cp':
+		include 'oper/cp.php';
+		break;
+	case 'recalc':
+		include 'oper/recalc.php';
+		break;
+}
 
 if (isset($_GET['logout'])) {
     session_unset();
@@ -75,5 +86,6 @@ $tpl=str_replace("{tenant}", $tenant, $tpl);
 $tpl=str_replace("{ai}", $ai, $tpl);
 $tpl=str_replace("{cc}", $cc, $tpl);
 $tpl=str_replace("{cp}", $cp, $tpl);
+$tpl=str_replace("{recalc}", $recalc, $tpl);
 echo $tpl;
 ?>

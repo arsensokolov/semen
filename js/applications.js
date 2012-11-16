@@ -1114,9 +1114,7 @@ $('#col2').on('click', '#cp_date', function() {
 		$('#cp_ved').html('');
 	}, "json")	
 })
-$('#col2').on('change', '#cp_date', function() {
-	
-	})
+
 //Начисление по ОДПУ->Адрес
 $('#col2').on('change', '#cp_search_house', function() {
 	var date = $('#cp_date').val()
@@ -1157,8 +1155,9 @@ $('#col2').on('change', '#cp_search_counter', function() {
 	}, "json")
   })
   
-//Начисление по ОДПУ->Конечные показания счетчика  
+//Начисление по ОДПУ->Конечные показания счетчика прямой подачи 
 $('#col2').on('keyup', '#max_counter', function() {
+	var cp_service = $('#cp_search_service option:selected').val()
 	var min = $('#min_counter').val()
 	var max = $('#max_counter').val()
 	var norma=$('#cp_norma').val()
@@ -1167,14 +1166,32 @@ $('#col2').on('keyup', '#max_counter', function() {
 	var v_norma=$('#v_norma').val()
 	var cp_recalc=$('#cp_recalc').val()
 	var v= parseFloat(norma)+parseFloat(ipu)+parseFloat(nej)-parseFloat(cp_recalc);
-	$.post('application.php', {cp:'cp_v',cp_max:max, cp_min:min,cp_v:v,cp_norma:v_norma}, function (data) {
+	$.post('application.php', {cp:'cp_v',cp_max:max, cp_min:min,cp_v:v,cp_norma:v_norma,cp_service:cp_service}, function (data) {
 		$('#odn').val(data.ost);
 		$('#cp_v').val(data.result);
+		$('#odn_sum').val(data.amount);
 	}, "json")
 })
+  
+//Начисление по ОДПУ->->Конечные показания счетчика обратной подачи  
+  $('#col2').on('keyup', '#max_counter1', function() {
+	var cp_service = $('#cp_search_service option:selected').val()
+	var min = $('#min_counter').val()
+	var max = $('#max_counter1').val()
+	var v_norma=$('#v_norma1').val()
+	min=min*(-1);
+	max=max*(-1);
+	v_norma=v_norma*(-1)
+	var v= 0;
+	$.post('application.php', {cp:'cp_v',cp_max:max, cp_min:min,cp_v:v,cp_norma:v_norma,cp_service:cp_service}, function (data) {
+		$('#odn').val(data.ost);
+		$('#odn_sum').val(data.amount);
+	}, "json")
+  })
   
 //Начисление по ОДПУ->Объем по норме  
 $('#col2').on('keyup', '#v_norma', function() {
+	var cp_service = $('#cp_search_service option:selected').val()
 	var min = $('#min_counter').val()
 	var max = $('#max_counter').val()
 	var norma=$('#cp_norma').val()
@@ -1183,23 +1200,28 @@ $('#col2').on('keyup', '#v_norma', function() {
 	var v_norma=$('#v_norma').val()
 	var cp_recalc=$('#cp_recalc').val()
 	var v= parseFloat(norma)+parseFloat(ipu)+parseFloat(nej)-parseFloat(cp_recalc);
-	$.post('application.php', {cp:'cp_v',cp_max:max, cp_min:min,cp_v:v,cp_norma:v_norma}, function (data) {
+	$.post('application.php', {cp:'cp_v',cp_max:max, cp_min:min,cp_v:v,cp_norma:v_norma,cp_service:cp_service}, function (data) {
 		$('#odn').val(data.ost);
 		$('#cp_v').val(data.result);
+		$('#odn_sum').val(data.amount);
 	}, "json")
 })
-  
-  $('#col2').on('keyup', '#max_counter1', function() {
+
+//Начисление по ОДПУ->Объем по норме обратка
+$('#col2').on('keyup', '#v_norma1', function() {
+	var cp_service = $('#cp_search_service option:selected').val()
 	var min = $('#min_counter').val()
 	var max = $('#max_counter1').val()
+	var v_norma=$('#v_norma1').val()
+	var v=0;
 	min=min*(-1);
 	max=max*(-1);
-	var v= 0;
-	$.post('application.php', {cp:'cp_v',cp_max:max, cp_min:min,cp_v:v}, function (data) {
+	v_norma=v_norma*(-1)
+	$.post('application.php', {cp:'cp_v',cp_max:max, cp_min:min,cp_v:v,cp_norma:v_norma,cp_service:cp_service}, function (data) {
 		$('#odn').val(data.ost);
-		//$('#cp_v').val(data.result);
+		$('#odn_sum').val(data.amount);
 	}, "json")
-  })
+})
 
 //Начисление по ОДПУ->Рассчитать  
 $('#col2').on('click', '#cp_rasch', function() {
@@ -1218,14 +1240,39 @@ $('#col2').on('click', '#cp_rasch', function() {
 
 //Начисление по ОДПУ->Сохранение данных  
  $('#col2').on('click', '#cp_save_data', function() {
-	var date_cp = $('#cp_date').val();
+	var cp_date = $('#cp_date').val();
 	var id_ch = $('#cp_search_counter option:selected').val()
+	var begin_count1 = $('#min_counter1').val()
+	var end_count1 = $('#max_counter1').val()
 	var begin_count = $('#min_counter').val()
-	var end_count = $('#max_count').val()
-	var cp_count = $('#cp_v').val()
-	var cp_amount = $('#cp_amount').val()
+	var end_count = $('#max_counter').val()
+	var v_norma=$('#v_norma').val()
+	var v_norma1=$('#v_norma1').val()
+	if (typeof begin_count1 =="undefined") {
+	begin_count1=0;
+	}
+	if (typeof begin_count =="undefined") {
+	begin_count=0;
+	}
+	if (typeof end_count1 =="undefined") {
+	end_count1=0;
+	}
+	if (typeof end_count =="undefined") {
+	end_count=0;
+	}
+	if (typeof v_norma =="undefined") {
+	v_norma=0;
+	}
+	if (typeof v_norma1 =="undefined") {
+	v_norma1=0;
+	}
+	begin_count=parseFloat(begin_count)+parseFloat(begin_count1);	
+	end_count=parseFloat(end_count)+parseFloat(end_count1);
+	v_norma=parseFloat(v_norma)+parseFloat(v_norma1);
+	var cp_count = $('#odn').val()
+	var cp_amount = $('#odn_sum').val()
 	var cp_node = $('#cp_node').val()
-	var cp_service = $('cp_search_service option:selected').val()
+	var cp_service = $('#cp_search_service option:selected').val()
 	var mas = new Array;
 	for (i=1;i<=document.getElementById('ved_table').getElementsByTagName('tr').length;i++) {
 		mas[i] = new Array;
@@ -1234,14 +1281,18 @@ $('#col2').on('click', '#cp_rasch', function() {
 		mas[i][j][0]=$("#col2 #ved_table tr:eq("+i+") td:eq("+j+")").text()
 		}
 	}
-	$.post('application.php', {cp:'cp_save_data',cp_mas:mas,date_cp:date_cp,id_ch:id_ch,begin_count:begin_count,end_count:end_count,
-	cp_count:cp_count, cp_amount:cp_amount, cp_node:cp_node, cp_service:cp_service}, function (data) {
-			$('#cp_ved').html(data.result);
+	$.post('application.php', {cp:'cp_save_data',cp_date:cp_date,id_ch:id_ch,begin_count:begin_count,end_count:end_count,
+	cp_count:cp_count, cp_amount:cp_amount, cp_node:cp_node, cp_service:cp_service,v_norma:v_norma,cp_mas:mas}, function (data) {
+		$('#cp_ved').html(data.result);
+		$('#cp_counter').html('');
+		$('#cp_count').html('');
+		$('#cp_ved').html('');
 	}, "json")
  })
 
  //Начисление по ОДПУ->Изменение таблицы
  $("#col2").on('click', '#ved_table td', function(){
+
 	if  (($(this).index()==5) && ($(this).closest("tr").index()!='0')) {
    $(this).html("<input id='input' type='text' value='"+$(this).text()+"'/>");
    }
@@ -1255,4 +1306,63 @@ $('#col2').on('click', '#cp_rasch', function() {
  })
 //----------------------------------------------------------------------------------------
 
+//Перерасчет ----------------------------------------------------------------------
+//Перерасчет->Календарь	для перерасчет
+$('#col2').on('click', '#recalc_date', function() {
+	$(this).datepicker({
+		format: 'yyyy-mm-dd',
+		weekStart: 1
+	}).focus();
+	var id= $('#recalc_id').val();
+	$.post('application.php', {action:'recalc_data',recalc_id:id}, function(data) {
+		$('#recalc_div').html(data.result)
+	}, "json")
 })
+
+//Перерасчет->Календарь	для начальной даты
+$('#col2').on('click', '#recalc_date1', function() {
+	$(this).datepicker({
+		format: 'yyyy-mm-dd',
+		weekStart: 1
+	}).focus();
+	var id= $('#recalc_id').val();
+})
+
+//Перерасчет->Календарь	для конечной даты
+$('#col2').on('click', '#recalc_date2', function() {
+	$(this).datepicker({
+		format: 'yyyy-mm-dd',
+		weekStart: 1
+	}).focus();
+	$('#recalc_kolvo').val('sdasd');
+})
+
+//Перерасчет->Подсчет объема вычета и суммы
+$('#col2').on('blur', '#recalc_date2', function() {
+	var date1 = $('#recalc_date1').val();
+	var date2 = $(this).val();
+	var id_tenant =  $('#recalc_id').val();
+	var id_service =  $('#recalc_service option:selected').val();
+   	$.post('application.php', {action:'recalc_data1',date1:date1,date2:date2,id_tenant:id_tenant,id_service:id_service}, function(data) {
+		$('#recalc_summa').val(data.result);
+	}, "json")
+})
+
+//Перерасчет->Вывод данных о квартиросъемщике
+$('#col2').on('keyup', '#recalc_kv', function() {
+   	var id_house = $('#recalc_house option:selected').val();
+	var number_flat = $(this).val();
+	$.post('application.php', {action:'recalc_tenant',recalc_house: id_house, recalc_kv:number_flat}, function(data) {
+		$('#data_tenant_div').html(data.result)
+	}, "json")
+})
+
+$('#col2').on('click', '#recalc_add_data', function() {
+	var id = $('#recalc_id').val();
+   	$.post('application.php', {action:'recalc_add_data',recalc_id:id}, function(data) {
+		$('#recalc_add_new_data').html(data.result)
+	}, "json")
+})
+
+})
+
