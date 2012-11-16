@@ -78,10 +78,10 @@ if (isset($_POST['ai_month']) && isset($_POST['ai_year']) && isset($_POST['month
 		$k++;	
 	}
 	$result.=';';
-	file_put_contents('temp.sql', $result);
-	$res = shell_exec('mysql -ujkhuser -pjkhpassword jkh < temp.sql');
+	//file_put_contents('temp.sql', $result);
+	//$res = shell_exec('mysql -ujkhuser -pjkhpassword jkh < temp.sql');
 	// "<pre>$output</pre>";
-	//exec('mysql -ujkhuser -pjkhpassword jkh < temp.sql',$res,$res);
+	passthru('mysql -ujkhuser -pjkhpassword jkh < '.$result,$res);
 	//$res=$my->query($result);
 	//$result.=$q->num_rows;
 	echo json_encode(array("result"=>$res));
