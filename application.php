@@ -32,6 +32,8 @@ if (isset($_POST['tc_edit_id_tenant']) && isset($_POST['tc_edit_id_service'])) {
 	$ser=$my->query('SELECT * FROM  `service` where id_service='.$_POST['tc_edit_id_service']);
 	$num=$ser->fetch_assoc();
 	$sum=$s*$num['price_for_1_sqr_metre_k1']*$num['price_for_1_sqr_metre_k2']+$kolvo*$num['price_for_1_people_k1']*$num['price_for_1_people_k2'];
+	echo var_dump($s);
+	echo var_dump($kolvo	);
 	echo json_encode(array("amount"=>$sum));	
 }
 
@@ -55,7 +57,12 @@ if (isset($_POST['tc_edit_id_card']) && isset($_POST['tc_edit_id_service'])) {
 //Начисление->Произведение начисления  
 if (isset($_POST['ai_month']) && isset($_POST['ai_year']) && isset($_POST['month_text'])) {
 	$result='';
-	$q=$my->query('SELECT tc.id_tenant,tc.id_service, round(tc.amount,2) as amount, (round(s.price_for_1_sqr_metre_k2,2)+round(s.price_for_1_people_k2,2)) as norma FROM `tenant_card` tc join service s on tc.id_service=s.id_service where counter=0 order by tc.id_tenant');
+	$q=$my->query('SELECT tc.id_tenant,tc.id_service, round(tc.amount,2) as amount,
+				(round((s.price_for_1_sqr_metre_k2*t.square+s.price_for_1_people_k2*t.quantity_of_lodger),2))as norma 
+				FROM `tenant_card` tc 
+				join service s on tc.id_service=s.id_service
+				join the_tenant t on t.id_tenant=tc.id_tenant 
+				where counter=0 order by tc.id_tenant');
 	$s='';
 	$k=1;
 	$result.='insert into accrued_items values ';
@@ -504,7 +511,8 @@ if (isset($_POST['action']) && $_POST['action']=='recalc_data') {
 	$recalc.= " </tr>";
 	$recalc.= " </table> <br>";
 	$recalc.="<center><button type=\"button\" id='recalc_add_data'>Добавить</button>";
-	$recalc.="<button type=\"button\" id='recalc_rem_data'>Удалить</button></center>";
+	//$recalc.="<button type=\"button\" id='recalc_rem_data'>Удалить</button>
+	$recalc.="</center>";
 	$recalc.="<div id='recalc_add_new_data'> </div>";
 	echo json_encode(array("result"=>$recalc));
 }
@@ -538,7 +546,7 @@ if (isset($_POST['action']) && $_POST['action']=='recalc_add_data') {
     $recalc.= "<input type='text' id='recalc_node'> <br>";
 	
 	$recalc.="<br><button type=\"button\" id='recalc_save_data'>Сохранить</button>";
-	
+	$recalc.="<div id='recalc_aaaa'> </div>";
 	$recalc.="</form>";
 	echo json_encode(array("result"=>$recalc));
 }
@@ -546,6 +554,7 @@ if (isset($_POST['action']) && $_POST['action']=='recalc_add_data') {
 //Перерасчет->Выбрана конечная дата
 if (isset($_POST['action']) && $_POST['action']=='recalc_data1') {
 	$recalc='';
+	$a='';
 	$id_tenant=$_POST['id_tenant'];
 	$id_service=$_POST['id_service'];
 	$date1=$_POST['date1'];
@@ -558,29 +567,376 @@ if (isset($_POST['action']) && $_POST['action']=='recalc_data1') {
 	$year2=substr($date2,-10,4);
 	$v=0;
 	$summ=0;
-	for ($j=$year1;$j<=$year2;$j++) {
+	if (($month1==$month2) && ($year1==$year2)) {
+		$date_t1=date("Y-m-d", mktime(0, 0, 0, $month1, 1, $year1));
+		$date_t2=date("Y-m-d", mktime(0, 0, 0, $month1+1, 0, $year2));
+		$q=$my->query('select round(sum(count),2) as count, round(sum(amount),2) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"');
+		$row=$q->fetch_assoc();
+		$date_t1= mktime(0, 0, 0, $month1, 0, $year1);
+		$date_t2= mktime(0, 0, 0, $month1+1, 0, $year2);
+		$days=($date_t2-$date_t1)/86400;
+		$day=round($day2)-round($day1)+1;
+		$v=$row['count']*$day/$days;
+		$summ=$row['amount']*$day/$days;
+		
+	} else {
+	if ($year1==$year2) {
 		for ($i=$month1;$i<=$month2;$i++) {
-			if (($month1==$month2) && ($year1==$year2)) {
 				$date_t1=date("Y-m-d", mktime(0, 0, 0, $i, 1, $year1));
-				$date_t2=date("Y-m-d", mktime(0, 0, 0, $i+1, 0, $year2));
+				$date_t2=date("Y-m-d", mktime(0, 0, 0, $i+1, 0, $year1));
 				$q=$my->query('select round(sum(count),2) as count, round(sum(amount),2) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' 
 				and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"');
 				$row=$q->fetch_assoc();
 				$date_t1= mktime(0, 0, 0, $i, 0, $year1);
 				$date_t2= mktime(0, 0, 0, $i+1, 0, $year2);
 				$days=($date_t2-$date_t1)/86400;
-				$day=round($day2)-round($day1)+1;
-				$v=$row['count']*$day/$days;
-				$summ=$row['amount']*$day/$days;
-				// $recalc.= $days.' |';
-				// $recalc.= $day.' |';	
+			if ($i==$month1) {
+				$lastday=date("d", mktime(0, 0, 0, $i+1, 0, $year1));
+				$day=round($lastday)-round($day1)+1;
+				$v+=$row['count']*$day/$days;
+				$summ+=$row['amount']*$day/$days;	
+			}
+			if ($i==$month2) {
+				$day=round($day2);
+				$v+=$row['count']*$day/$days;
+				$summ+=$row['amount']*$day/$days;
+			}
+			if (($i>$month1) && ($i<$month2)) {
+				$v+=$row['count'];
+				$summ+=$row['amount'];
+			} 	
+		}
+	}
+	if ($year1<$year2) {
+		for ($i=$year1;$i<=$year2;$i++) {
+			if ($i=$year1) {
+				for ($j=$month1;$j<=12;$j++) {
+					$date_t1=date("Y-m-d", mktime(0, 0, 0, $j, 1, $i));
+					$date_t2= date("Y-m-d", mktime(0, 0, 0, $j+1, 0, $i));
+					$q=$my->query('select round(sum(count),2) as count, round(sum(amount),2) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' 
+					and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"');
+					$row=$q->fetch_assoc();
+					$date_t1= mktime(0, 0, 0, $j, 0, $i);
+					$date_t2= mktime(0, 0, 0, $j+1, 0, $i);
+					$days=($date_t2-$date_t1)/86400;
+					if ($j==$month1) {
+						$lastday=date("d", mktime(0, 0, 0, $j+1, 0, $i));
+						$day=round($lastday)-round($day1)+1;
+						$v+=$row['count']*$day/$days;
+						$summ+=$row['amount']*$day/$days;						
+					}
+					if ($j!=$month1) {
+						$v+=$row['count'];
+						$summ+=$row['amount'];
+					} 
+				}
+			}
+			if ($i=$year2) {
+				for ($j=1;$j<=$month2;$j++) {
+					$date_t1=date("Y-m-d", mktime(0, 0, 0, $j, 1, $i));
+					$date_t2= date("Y-m-d", mktime(0, 0, 0, $j+1, 0, $i));
+					$q=$my->query('select round(sum(count),2) as count, round(sum(amount),2) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' 
+					and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"');
+					$row=$q->fetch_assoc();
+					$date_t1= mktime(0, 0, 0, $j, 0, $i);
+					$date_t2= mktime(0, 0, 0, $j+1, 0, $i);
+					$days=($date_t2-$date_t1)/86400;
+					if ($j==$month2) {
+						$day=round($day2);
+						$v+=$row['count']*$day/$days;
+						$summ+=$row['amount']*$day/$days;
+					}
+					if ($j!=$month2) {
+						$v+=$row['count'];
+						$summ+=$row['amount'];
+					} 
+				}
+			}
+			if (($i>$year1) && ($i<$year2)) {
+				for ($j=1;$j<=12;$j++) {
+					$date_t1=date("Y-m-d", mktime(0, 0, 0, $j, 1, $i));
+					$date_t2= date("Y-m-d", mktime(0, 0, 0, $j+1, 0, $i));
+					$q=$my->query('select round(sum(count),2) as count, round(sum(amount),2) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' 
+					and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"');
+					$row=$q->fetch_assoc();
+					$v+=$row['count'];
+					$summ+=$row['amount'];
+				}
 			}
 		}
 	}
+	}
 	$v = round($v,3);
 	$summ = round($summ,2);
-	echo json_encode(array("v"=>$v,"sum"=>$summ));
+	echo json_encode(array("v"=>$v,"sum"=>$summ,"aaaa"=>$a));
 }
 
+//Перерасчет->Добавление в таблицу данных
+if (isset($_POST['action']) && $_POST['action']=='recalc_save_data') {
+	$recalc='';
+	$mas=$_POST['mas'];
+	$date1=$_POST['date1'];
+	$date2=$_POST['date2'];
+	$service=$_POST['service'];
+	$id=$_POST['recalc_id'];
+	$v=$_POST['v'];
+	$summa=$_POST['summa'];
+	$node=$_POST['node'];
+	$recalc.= "<table id='recalc_table' border=1 cellspacing=0 cellpadding=2 width=680 px align='center'>";
+	$recalc.= "<tr>";
+	$recalc.= " <td> №</td>";
+	$recalc.= " <td> Начальная дата </td>";
+	$recalc.= " <td> Конечная дата </td>";
+	$recalc.= " <td> Услуга </td>";
+	$recalc.= " <td> Кол-во </td>";
+	$recalc.= " <td> Сумма </td>";
+	$recalc.= " <td> Примечание </td>";
+	$recalc.= " </tr>";
+	$k=count($mas);
+	if ($k==0) $k=1; 
+	for ($i=1;$i<=count($mas)-1;$i++) {
+	$recalc.= "<tr>";
+	$recalc.= " <td> ".$mas[$i][0][0]."</td>";
+	$recalc.= " <td> ".$mas[$i][1][0]."</td>";
+	$recalc.= " <td> ".$mas[$i][2][0]."</td>";
+	$recalc.= " <td> ".$mas[$i][3][0]."</td>";
+	$recalc.= " <td> ".$mas[$i][4][0]."</td>";
+	$recalc.= " <td> ".$mas[$i][5][0]."</td>";
+	$recalc.= " <td> ".$mas[$i][6][0]."</td>";
+	$recalc.= " </tr>";
+	}
+	$recalc.= "<tr>";
+	$recalc.= " <td>".$k."</td>";
+	$recalc.= " <td> ".$date1."</td>";
+	$recalc.= " <td> ".$date2."</td>";
+	$recalc.= " <td> <span id=".$id.">".$service."</span></td>";
+	$recalc.= " <td> ".$v."</td>";
+	$recalc.= " <td> ".$summa."</td>";
+	$recalc.= " <td> ".$node."</td>";
+	$recalc.= " </tr>";
+	$recalc.= " </table> <br>";
+	$recalc.="<center><button type=\"button\" id='recalc_add_data'>Добавить</button>";
+	//$recalc.="<button type=\"button\" id='recalc_rem_data'>Удалить</button>
+	$recalc.="</center>";
+	$recalc.="<div id='recalc_add_new_data'>";
+	$recalc.="<center><br><button type=\"button\" id='recalc_save_recalc'>Сохранить перерасчет	</button></center>";
+	$recalc.="</div>";
+	echo json_encode(array("result"=>$recalc));
+	}
+	
+//Перерасчет->Добавление в таблицу данных
+if (isset($_POST['action']) && $_POST['action']=='recalc_save_recalc') {
+	$recalc='';
+	$mas=$_POST['mas'];
+	$date=$_POST['date'];
+	$id=$_POST['id'];
+	for ($i=1;$i<=count($mas)-1;$i++) {
+		$DOM = new DOMDocument;
+		$searchPage = mb_convert_encoding($mas[$i][3][0], 'HTML-ENTITIES', "UTF-8"); 
+		$DOM->loadHTML($searchPage);
+		$items = $DOM->getElementsByTagName('span');
+			foreach($items as $element) {
+			   $id_service= $element->getAttribute('id');
+			}
+		$q=$my->query('insert into deduction values ("","'.$date.'","'.$mas[$i][1][0].'","'.$mas[$i][2][0].'",'.$id.','
+		.$id_service.','.$mas[$i][4][0].','.$mas[$i][5][0].',"'.$mas[$i][6][0].'")');
+	}
+	echo json_encode(array("result"=>$recalc));
+}	
 //-------------------------------------------------------------------
+
+//Перерасчет (дом)---------------------------------------------------------
+//Перерасчет (дом)->Вывод данных о квартиросъемщике
+if (isset($_POST['action']) && $_POST['action']=='recalc_house_adr') {	
+	$recalc_house='';
+	if ($_POST['adr']=='0') {
+		$recalc_house.='<font color="red">Выберите номер дома</font>';
+	} else {
+	$recalc_house.= "Услуга:<br>" ;
+	$recalc_house.= "<select id='recalc_house_ser' size=1>";
+	$adr=$my->query('SELECT s.id_service, s.name_service FROM `service` s join service_for_house hs on hs.id_service=s.id_service where hs.id_house = '.$_POST['adr']);
+	while (@$num=$adr->fetch_assoc()) {
+		$recalc_house.= "<option value=".$num['id_service'].">".$num['name_service']."</option>";
+	}
+	$recalc_house.= "</select><br>";
+	$recalc_house.= "<br><button type=\"button\" id='recalc_house_form'>Сформировать</button>";
+	}
+	echo json_encode(array("result"=>$recalc_house));
+}
+
+//Перерасчет (дом)->Сформировать таблицу
+if (isset($_POST['action']) && $_POST['action']=='recalc_house_form') {
+	$recalc_house='';
+	if ($_POST['date1']=='' || $_POST['date2']=='') {
+		$recalc_house.='<font color = "red">Заполните все поля </font>';
+	} else {
+	$recalc_house.= "<table id='rec_table' border=1 cellspacing=0 cellpadding=2 width=680 px align='center'>";
+	$recalc_house.= "<tr>";
+	$recalc_house.= " <td> № п/п</td>";
+	$recalc_house.= " <td> № ЛС </td>";
+	$recalc_house.= " <td> № кв-ры </td>";
+	$recalc_house.= " <td> Ф.И.О. </td>";
+	$recalc_house.= " <td> Объем </td>";
+	$recalc_house.= " <td> Сумма </td>";
+	$recalc_house.= " <td> Примечание </td>";
+	$recalc_house.= " </tr>";
+	
+	$adr=$my->query('SELECT t.id_tenant, t.number_flat, CONCAT( t.surname, " ", t.name_tenant," ", t.patronomic ) AS fio
+	FROM the_tenant t where t.id_house='.$_POST['adr']);
+	$k=1;
+	$id_service=$_POST['ser'];
+	$date1=$_POST['date1'];
+	$date2=$_POST['date2'];
+	while (@$num=$adr->fetch_assoc()) {
+		$id_tenant=$num['id_tenant'];
+		$day1=substr($date1,-2,2);
+		$day2=substr($date2,-2,2);
+		$month1=substr($date1,-5,2);
+		$month2=substr($date2,-5,2);
+		$year1=substr($date1,-10,4);
+		$year2=substr($date2,-10,4);
+		$v=0;
+		$summ=0;
+		if (($month1==$month2) && ($year1==$year2)) {
+			$date_t1=date("Y-m-d", mktime(0, 0, 0, $month1, 1, $year1));
+			$date_t2=date("Y-m-d", mktime(0, 0, 0, $month1+1, 0, $year2));
+			$q=$my->query('select round(sum(count),2) as count, round(sum(amount),2) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"');
+			$row=$q->fetch_assoc();
+			$date_t1= mktime(0, 0, 0, $month1, 0, $year1);
+			$date_t2= mktime(0, 0, 0, $month1+1, 0, $year2);
+			$days=($date_t2-$date_t1)/86400;
+			$day=round($day2)-round($day1)+1;
+			$v=$row['count']*$day/$days;
+			$summ=$row['amount']*$day/$days;
+		} else {
+		if ($year1==$year2) {
+			for ($i=$month1;$i<=$month2;$i++) {
+					$date_t1=date("Y-m-d", mktime(0, 0, 0, $i, 1, $year1));
+					$date_t2=date("Y-m-d", mktime(0, 0, 0, $i+1, 0, $year1));
+					$q=$my->query('select round(sum(count),2) as count, round(sum(amount),2) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' 
+					and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"');
+					$row=$q->fetch_assoc();
+					$date_t1= mktime(0, 0, 0, $i, 0, $year1);
+					$date_t2= mktime(0, 0, 0, $i+1, 0, $year2);
+					$days=($date_t2-$date_t1)/86400;
+				if ($i==$month1) {
+					$lastday=date("d", mktime(0, 0, 0, $i+1, 0, $year1));
+					$day=round($lastday)-round($day1)+1;
+					$v+=$row['count']*$day/$days;
+					$summ+=$row['amount']*$day/$days;	
+				}
+				if ($i==$month2) {
+					$day=round($day2);
+					$v+=$row['count']*$day/$days;
+					$summ+=$row['amount']*$day/$days;
+				}
+				if (($i>$month1) && ($i<$month2)) {
+					$v+=$row['count'];
+					$summ+=$row['amount'];
+				} 	
+			}
+		}
+		if ($year1<$year2) {
+			for ($i=$year1;$i<=$year2;$i++) {
+				if ($i=$year1) {
+					for ($j=$month1;$j<=12;$j++) {
+						$date_t1=date("Y-m-d", mktime(0, 0, 0, $j, 1, $i));
+						$date_t2= date("Y-m-d", mktime(0, 0, 0, $j+1, 0, $i));
+						$q=$my->query('select round(sum(count),2) as count, round(sum(amount),2) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' 
+						and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"');
+						$row=$q->fetch_assoc();
+						$date_t1= mktime(0, 0, 0, $j, 0, $i);
+						$date_t2= mktime(0, 0, 0, $j+1, 0, $i);
+						$days=($date_t2-$date_t1)/86400;
+						if ($j==$month1) {
+							$lastday=date("d", mktime(0, 0, 0, $j+1, 0, $i));
+							$day=round($lastday)-round($day1)+1;
+							$v+=$row['count']*$day/$days;
+							$summ+=$row['amount']*$day/$days;	
+						}
+						if ($j!=$month1) {
+							$v+=$row['count'];
+							$summ+=$row['amount'];
+						} 
+					}
+				}
+				if ($i=$year2) {
+					for ($j=1;$j<=$month2;$j++) {
+						$date_t1=date("Y-m-d", mktime(0, 0, 0, $j, 1, $i));
+						$date_t2= date("Y-m-d", mktime(0, 0, 0, $j+1, 0, $i));
+						$q=$my->query('select round(sum(count),2) as count, round(sum(amount),2) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' 
+						and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"');
+						$a.='select round(sum(count),2) as count, round(sum(amount),2) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"';
+						$row=$q->fetch_assoc();
+						$date_t1= mktime(0, 0, 0, $j, 0, $i);
+						$date_t2= mktime(0, 0, 0, $j+1, 0, $i);
+						$days=($date_t2-$date_t1)/86400;
+						if ($j==$month2) {
+							$day=round($day2);
+							$v+=$row['count']*$day/$days;
+							$summ+=$row['amount']*$day/$days;	
+						}
+						if ($j!=$month2) {
+							$v+=$row['count'];
+							$summ+=$row['amount'];
+						} 
+					}
+				}
+				if (($i>$year1) && ($i<$year2)) {
+					for ($j=1;$j<=12;$j++) {
+						$date_t1=date("Y-m-d", mktime(0, 0, 0, $j, 1, $i));
+						$date_t2= date("Y-m-d", mktime(0, 0, 0, $j+1, 0, $i));
+						$q=$my->query('select round(sum(count),2) as count, round(sum(amount),2) as amount from accrued_items where id_tenant='.$id_tenant.' and id_service='.$id_service.' 
+						and date_accrued_items between "'.$date_t1.'" and "'.$date_t2.'"');
+						$row=$q->fetch_assoc();
+						$v+=$row['count'];
+						$summ+=$row['amount'];
+					}
+				}
+			}
+		}
+		}
+		$v = round($v,3);
+		$summ = round($summ,2);
+		$recalc_house.= "<tr>";
+		$recalc_house.= " <td>".$k."</td>";
+		$recalc_house.= " <td>".$num['id_tenant']."</td>";
+		$recalc_house.= " <td>".$num['number_flat']."</td>";
+		$recalc_house.= " <td>".$num['fio']."</td>";
+		$recalc_house.= " <td>".$v."</td>";
+		$recalc_house.= " <td>".$summ."</td>";
+		$recalc_house.= " <td> </td>";
+		$recalc_house.= " </tr>";
+		$k++;
+			
+	}
+	$recalc_house.="</table>";
+	$recalc_house.="<center><br><button type=\"button\" id='recalc_house_save'>Сохранить</button></center>";
+	}
+	echo json_encode(array("result"=>$recalc_house));
+}	
+
+//Перерасчет (дом)->Сохранить данные
+if (isset($_POST['action']) && $_POST['action']=='recalc_house_save') {
+	$recalc_house='';
+	$k=1;
+	$id_service=$_POST['ser'];
+	$date1=$_POST['date1'];
+	$date2=$_POST['date2'];
+	$date=$_POST['date'];
+	$mas=$_POST['mas'];
+	$recalc_house.='insert into deduction values ';
+	for ($i=1;$i<=count($mas)-1;$i++) {
+		if ($i==1) {
+			$recalc_house.='("","'.$date.'","'.$date1.'","'.$date2.'",'.$mas[$i][1][0].','.$id_service.','.$mas[$i][4][0].','.$mas[$i][5][0].',"'.$mas[$i][6][0].'")';
+		} else {
+			$recalc_house.=', ("","'.$date.'","'.$date1.'","'.$date2.'",'.$mas[$i][1][0].','.$id_service.','.$mas[$i][4][0].','.$mas[$i][5][0].',"'.$mas[$i][6][0].'")';
+		}
+	}
+	$recalc_house.=';';
+	$q=$my->query($recalc_house);	
+	echo json_encode(array("result"=>'Данная операция выполнена'));
+}
+//-------------------------------------------------------------------
+
 ?>                     

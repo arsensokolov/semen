@@ -1325,7 +1325,6 @@ $('#col2').on('click', '#recalc_date1', function() {
 		format: 'yyyy-mm-dd',
 		weekStart: 1
 	}).focus();
-	var id= $('#recalc_id').val();
 })
 
 //Перерасчет->Календарь	для конечной даты
@@ -1336,7 +1335,10 @@ $('#col2').on('click', '#recalc_date2', function() {
 	}).focus();
 	//$('#recalc_kolvo').val('sdasd');
 })
-
+$('#col2 #recalc_date2').datepicker()
+  .on('changeDate', function(ev){
+    alert('asdada');
+    });
 //Перерасчет->Подсчет объема вычета и суммы
 $('#col2').on('blur', '#recalc_date2', function() {
 	var date1 = $('#recalc_date1').val();
@@ -1346,7 +1348,7 @@ $('#col2').on('blur', '#recalc_date2', function() {
    	$.post('application.php', {action:'recalc_data1',date1:date1,date2:date2,id_tenant:id_tenant,id_service:id_service}, function(data) {
 		$('#recalc_summa').val(data.sum);
 		$('#recalc_v').val(data.v);
-		
+		$('#recalc_aaaa').html(data.aaaa);
 	}, "json")
 })
 
@@ -1358,6 +1360,7 @@ $('#col2').on('keyup', '#recalc_kv', function() {
 		$('#data_tenant_div').html(data.result)
 	}, "json")
 })
+
 //Перерасчет->Вывод формы добавления
 $('#col2').on('click', '#recalc_add_data', function() {
 	var id = $('#recalc_id').val();
@@ -1366,16 +1369,109 @@ $('#col2').on('click', '#recalc_add_data', function() {
 	}, "json")
 })
 
-//Перерасчет->Вывод формы добавления
+//Перерасчет->Сохранение данных в табицу
 $('#col2').on('click', '#recalc_save_data', function() {
 	var id = $('#recalc_service option:selected').val()
 	var service = $('#recalc_service option:selected').text()
 	var date1 = $('#recalc_date1').val()
 	var date2 = $('#recalc_date2').val()
-	var datev = $('#recalc_v').val()
-   	$.post('application.php', {action:'recalc_add_data',recalc_id:id}, function(data) {
-		$('#recalc_add_new_data').html(data.result)
+	var v = $('#recalc_v').val()
+	var summa = $('#recalc_summa').val()
+	var node = $('#recalc_node').val()
+	var mas = new Array;
+	for (i=1;i<=document.getElementById('recalc_table').getElementsByTagName('tr').length-1;i++) {
+		mas[i] = new Array;
+		for (j=0;j<=6;j++) {
+		mas [i][j] =new Array;
+		mas[i][j][0]=$("#col2 #recalc_table tr:eq("+i+") td:eq("+j+")").html()
+		}
+	}
+   	$.post('application.php', {action:'recalc_save_data',recalc_id:id,service:service,date1:date1,date2:date2,v:v,summa:summa,node:node,mas:mas}, function(data) {
+		$('#recalc_div').html(data.result)
 	}, "json")
 })
+
+//Перерасчет->Сохранение перерасчета
+$('#col2').on('click', '#recalc_save_recalc', function() {
+	var date = 	$('#recalc_date').val()
+	var id = 	$('#recalc_id').val()
+	var mas = new Array;
+	for (i=1;i<=document.getElementById('recalc_table').getElementsByTagName('tr').length-1;i++) {
+		mas[i] = new Array;
+		for (j=0;j<=6;j++) {
+		mas [i][j] =new Array;
+		mas[i][j][0]=$("#col2 #recalc_table tr:eq("+i+") td:eq("+j+")").html()
+		}
+	}
+	$.post('application.php', {action:'recalc_save_recalc',id:id,date:date,mas:mas}, function(data) {
+		$('#recalc_div').html(data.result)
+	}, "json")
+})
+//----------------------------------------------------------------------------------------
+
+//Перерасчет (дом)----------------------------------------------------------------------
+
+//Перерасчет (дом)->Календарь	для даты
+$('#col2').on('click', '#recalc_house_date', function() {
+	$(this).datepicker({
+		format: 'yyyy-mm-dd',
+		weekStart: 1
+	}).focus();
 })
 
+//Перерасчет (дом)->Календарь	для начальной даты
+$('#col2').on('click', '#recalc_house_date1', function() {
+	$(this).datepicker({
+		format: 'yyyy-mm-dd',
+		weekStart: 1
+	}).focus();
+})
+
+//Перерасчет (дом)->Календарь	для конечной даты
+$('#col2').on('click', '#recalc_house_date2	', function() {
+	$(this).datepicker({
+		format: 'yyyy-mm-dd',
+		weekStart: 1
+	}).focus();
+})
+
+//Перерасчет (дом)->Выбор услуг дома
+$('#col2').on('change', '#recalc_house_adr', function() {
+	var adr = $('#recalc_house_adr option:selected').val()
+	$.post('application.php', {action:'recalc_house_adr',adr:adr}, function(data) {
+		$('#recalc_house_service').html(data.result)
+	}, "json")
+})
+
+//Перерасчет (дом)->Сформировать данные
+$('#col2').on('click', '#recalc_house_form', function() {
+	var adr = $('#recalc_house_adr option:selected').val()
+	var ser = $('#recalc_house_ser option:selected').val()
+	var date1=$('#recalc_house_date1').val()
+	var date2=$('#recalc_house_date2').val()
+	$.post('application.php', {action:'recalc_house_form',adr:adr,ser:ser,date1:date1,date2:date2}, function(data) {
+		$('#recalc_house_table').html(data.result)
+	}, "json")
+})	
+
+//Перерасчет (дом)-> Сохранить данные
+$('#col2').on('click', '#recalc_house_save', function() {
+	var ser = $('#recalc_house_ser option:selected').val()
+	var date	=$('#recalc_house_date').val()
+	var date1=$('#recalc_house_date1').val()
+	var date2=$('#recalc_house_date2').val()
+	var mas = new Array;
+	for (i=1;i<=document.getElementById('rec_table').getElementsByTagName('tr').length-1;i++) {
+		mas[i] = new Array;
+		for (j=0;j<=6;j++) {
+		mas [i][j] =new Array;
+		mas[i][j][0]=$("#col2 #rec_table tr:eq("+i+") td:eq("+j+")").html()
+		}
+	}
+	$.post('application.php', {action:'recalc_house_save',ser:ser,date:date,date1:date1,date2:date2,mas:mas}, function(data) {
+		$('#recalc_house_table').html(data.result)
+	}, "json")
+})
+
+//Конец JS
+})

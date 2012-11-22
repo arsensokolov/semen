@@ -44,6 +44,9 @@ switch($_GET['op']) {
 	case 'recalc':
 		include 'oper/recalc.php';
 		break;
+	case 'recalc_house':
+		include 'oper/recalc_house.php';
+		break;
 }
 
 if (isset($_GET['logout'])) {
@@ -87,5 +90,6 @@ $tpl=str_replace("{ai}", $ai, $tpl);
 $tpl=str_replace("{cc}", $cc, $tpl);
 $tpl=str_replace("{cp}", $cp, $tpl);
 $tpl=str_replace("{recalc}", $recalc, $tpl);
+$tpl=str_replace("{recalc_house}", $recalc_house, $tpl);
 echo $tpl;
 ?>
