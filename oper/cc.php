@@ -3,6 +3,7 @@ if ($_GET['op']=='cc') {
 include_once 'db.php';
 $cc='';
 $cc.= "<h1>Начисение по счетчику</h1>";
+$cc.='<hr>';		
 $cc.= "<form name='cc' action='index.php' method='get'>";
 $cc.= "Адрес:<br>" ;
 $cc.= "<select id='cc_search_house' size=1>";
@@ -17,4 +18,5 @@ $cc.= "<button type=\"button\" id='cc_search'>Поиск</button> <br><br>" ;
   $cc.= "</form>";
 
 $cc.="<div id='counter_div'> </div>";
+$cc.='<hr>';		
 } ?>
